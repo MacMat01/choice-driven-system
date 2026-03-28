@@ -1,5 +1,5 @@
 ﻿{
-  "name": "ChoiceSystem.Data",
+  "name": "Core.DynamicData",
   "rootNamespace": "",
   "references": [],
   "includePlatforms": [],

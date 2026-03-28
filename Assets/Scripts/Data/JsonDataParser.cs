@@ -20,11 +20,11 @@ namespace Data
             {
                 if (trimmed.StartsWith("[", StringComparison.Ordinal))
                 {
-                    string wrapped = "{\"items\":" + trimmed + "}";
+                    string wrapped = "{\"Items\":" + trimmed + "}";
                     ArrayWrapper<T> wrapper = JsonUtility.FromJson<ArrayWrapper<T>>(wrapped);
-                    if (wrapper?.items != null)
+                    if (wrapper?.Items != null)
                     {
-                        results.AddRange(wrapper.items);
+                        results.AddRange(wrapper.Items);
                     }
 
                     return results;
@@ -46,7 +46,7 @@ namespace Data
         [Serializable]
         private sealed class ArrayWrapper<T>
         {
-            public T[] items;
+            public T[] Items;
         }
     }
 }

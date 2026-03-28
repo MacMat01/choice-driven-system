@@ -89,7 +89,7 @@ namespace Data
                     continue;
                 }
 
-                if (!inQuotes && (c == '\n' || c == '\r'))
+                if (!inQuotes && c is '\n' or '\r')
                 {
                     string record = rawText.Substring(startIndex, i - startIndex);
                     if (!string.IsNullOrWhiteSpace(record))

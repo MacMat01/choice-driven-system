@@ -140,20 +140,19 @@ namespace Data
                         return true;
                     }
 
-                    if (normalized == "0")
+                    switch (normalized)
                     {
-                        converted = false;
-                        return true;
+                        case "0":
+                            converted = false;
+                            return true;
+                        case "1":
+                            converted = true;
+                            return true;
+                        default:
+                            error = "Invalid boolean value.";
+                            return false;
                     }
 
-                    if (normalized == "1")
-                    {
-                        converted = true;
-                        return true;
-                    }
-
-                    error = "Invalid boolean value.";
-                    return false;
                 }
 
                 if (effectiveType.IsEnum)

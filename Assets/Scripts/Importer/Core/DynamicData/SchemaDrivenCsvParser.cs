@@ -49,6 +49,7 @@ namespace Importer.Core.DynamicData
 
                 List<string> values = ParseRecord(record);
                 DataRecord dataRecord = new DataRecord();
+                bool rowHasErrors = false;
 
                 foreach (ColumnDefinition columnDef in schema.Columns)
                 {
@@ -59,17 +60,46 @@ namespace Importer.Core.DynamicData
                             Debug.LogWarning($"SchemaDrivenCsvParser: Column '{columnDef.ColumnName}' from schema not found in CSV headers. It will be skipped.");
                         }
 
+                        // Check if this required column is missing from CSV
+                        if (columnDef.IsRequired)
+                        {
+                            Debug.LogError($"SchemaDrivenCsvParser: Required column '{columnDef.ColumnName}' not found in CSV at row {rowIndex + 1}.");
+                            rowHasErrors = true;
+                        }
+
                         continue;
                     }
 
                     if (columnIndex >= values.Count)
                     {
+                        // Check if this required column is missing value
+                        if (columnDef.IsRequired)
+                        {
+                            Debug.LogError($"SchemaDrivenCsvParser: Required column '{columnDef.ColumnName}' is empty at row {rowIndex + 1}.");
+                            rowHasErrors = true;
+                        }
                         continue;
                     }
 
                     string cellValue = values[columnIndex];
+
+                    // Check if required column is empty
+                    if (columnDef.IsRequired && string.IsNullOrWhiteSpace(cellValue))
+                    {
+                        Debug.LogError($"SchemaDrivenCsvParser: Required column '{columnDef.ColumnName}' is empty at row {rowIndex + 1}.");
+                        rowHasErrors = true;
+                        continue;
+                    }
+
                     object parsedValue = ParseCellValue(cellValue, columnDef.DataType, columnDef.ColumnName, rowIndex + 1);
                     dataRecord.SetField(columnDef.ColumnName, parsedValue);
+                }
+
+                // Skip this row if it has required field errors
+                if (rowHasErrors)
+                {
+                    Debug.LogWarning($"SchemaDrivenCsvParser: Skipping row {rowIndex + 1} due to missing required fields.");
+                    continue;
                 }
 
                 results.Add(dataRecord);

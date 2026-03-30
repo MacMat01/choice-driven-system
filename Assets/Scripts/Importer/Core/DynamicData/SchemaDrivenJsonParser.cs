@@ -40,6 +40,7 @@ namespace Importer.Core.DynamicData
             {
                 Dictionary<string, string> properties = ParseObjectProperties(objectPayloads[i]);
                 DataRecord record = new DataRecord();
+                bool objectHasErrors = false;
 
                 foreach (ColumnDefinition column in schema.Columns)
                 {
@@ -50,11 +51,32 @@ namespace Importer.Core.DynamicData
 
                     if (!properties.TryGetValue(column.ColumnName, out string rawValue))
                     {
+                        // Check if this required column is missing
+                        if (column.IsRequired)
+                        {
+                            Debug.LogError($"SchemaDrivenJsonParser: Required field '{column.ColumnName}' not found at item {i + 1}.");
+                            objectHasErrors = true;
+                        }
+                        continue;
+                    }
+
+                    // Check if required field is null or empty
+                    if (column.IsRequired && string.IsNullOrWhiteSpace(rawValue))
+                    {
+                        Debug.LogError($"SchemaDrivenJsonParser: Required field '{column.ColumnName}' is empty at item {i + 1}.");
+                        objectHasErrors = true;
                         continue;
                     }
 
                     object parsedValue = ParseValue(rawValue, column.DataType, column.ColumnName, i + 1);
                     record.SetField(column.ColumnName, parsedValue);
+                }
+
+                // Skip this record if it has required field errors
+                if (objectHasErrors)
+                {
+                    Debug.LogWarning($"SchemaDrivenJsonParser: Skipping item {i + 1} due to missing required fields.");
+                    continue;
                 }
 
                 results.Add(record);
@@ -70,7 +92,7 @@ namespace Importer.Core.DynamicData
             switch (dataType)
             {
                 case ColumnDataType.String:
-                    return value;
+                    return rawValue;
 
                 case ColumnDataType.Int:
                     if (int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int intValue))
@@ -366,7 +388,7 @@ namespace Importer.Core.DynamicData
             value = text.Substring(start, index - start).Trim();
             if (string.Equals(value, "null", StringComparison.OrdinalIgnoreCase))
             {
-                value = string.Empty;
+                value = null;
             }
 
             return true;

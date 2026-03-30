@@ -9,6 +9,7 @@ namespace Importer.Core.DynamicData
     ///     Supports operators: ==, !=, &gt;=, &lt;=, &gt;, &lt;.
     ///     Supports connectors as separators: &amp;&amp;, ||, and/or, &, |, ;.
     ///     Also supports boolean flags like "alchemy" (== 1) or "!alchemy" (!= 1).
+    ///     Also supports literal boolean constants: TRUE (always true), FALSE (always false).
     /// </summary>
     public static class ConditionParserUtility
     {
@@ -64,7 +65,13 @@ namespace Importer.Core.DynamicData
         {
             conditionPart = conditionPart.Trim();
 
-            // Try to parse as a boolean flag first (e.g., "alchemy" or "!alchemy").
+            // Try to parse as a literal boolean constant first (e.g., "TRUE" or "FALSE").
+            if (TryParseAsLiteralBoolean(conditionPart, out ParsedCondition booleanConstant))
+            {
+                return booleanConstant;
+            }
+
+            // Try to parse as a boolean flag (e.g., "alchemy" or "!alchemy").
             if (TryParseAsFlag(conditionPart, out ParsedCondition flagCondition))
             {
                 return flagCondition;
@@ -125,6 +132,26 @@ namespace Importer.Core.DynamicData
                 "||" or "|" or "or" => "OR",
                 _ => null
             };
+        }
+
+        private static bool TryParseAsLiteralBoolean(string conditionPart, out ParsedCondition booleanConstant)
+        {
+            booleanConstant = null;
+
+            string upperPart = conditionPart.ToUpperInvariant();
+
+            switch (upperPart)
+            {
+                case "TRUE":
+                    booleanConstant = ParsedCondition.CreateBooleanLiteral(true);
+                    return true;
+                case "FALSE":
+                    booleanConstant = ParsedCondition.CreateBooleanLiteral(false);
+                    return true;
+                default:
+                    return false;
+            }
+
         }
 
         private static bool TryParseAsFlag(string conditionPart, out ParsedCondition flagCondition)

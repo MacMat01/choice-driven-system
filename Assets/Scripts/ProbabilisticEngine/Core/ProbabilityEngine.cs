@@ -13,11 +13,11 @@ namespace ProbabilisticEngine.Core
         where TState : IGameState
         where TOption : IProbabilityOption<TState>
     {
-        private readonly List<ProbabilityItem<TState, TOption>> _choices;
+        private readonly List<ProbabilityItem<TState, TOption>> _items;
 
-        public ProbabilityEngine(IEnumerable<ProbabilityItem<TState, TOption>> choices)
+        public ProbabilityEngine(IEnumerable<ProbabilityItem<TState, TOption>> items)
         {
-            _choices = choices.ToList();
+            _items = items.ToList();
         }
 
         /// <summary>
@@ -26,25 +26,25 @@ namespace ProbabilisticEngine.Core
         /// </summary>
         public List<ProbabilityItem<TState, TOption>> GetValidChoices(TState state)
         {
-            return _choices.Where(choice => choice.AreConditionsMet(state)).ToList();
+            return _items.Where(item => item.AreConditionsMet(state)).ToList();
         }
         
         public ProbabilityItem<TState, TOption> EvaluateRandom(TState state)
         {
-            var validChoices = GetValidChoices(state);
+            var validItems = GetValidChoices(state);
             
-            if (validChoices.Count == 0)
+            if (validItems.Count == 0)
                 return null;
 
             // Calcola i pesi per ogni choice valido
-            var weights = validChoices.Select(c => c.BaseWeight).ToList();
+            var weights = validItems.Select(c => c.BaseWeight).ToList();
             
             // Seleziona un choice in base ai pesi
             int index = WeightedRandom.PickIndex(weights);
-            var selectedChoice = validChoices[index];
+            var selectedItem = validItems[index];
             
             // Restituisce il ProbabilityItem selezionato (non valutato)
-            return selectedChoice;
+            return selectedItem;
         }
         
     }

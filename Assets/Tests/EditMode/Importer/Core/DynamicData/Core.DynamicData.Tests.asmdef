@@ -1,0 +1,21 @@
+{
+  "name": "Core.DynamicData.Tests",
+  "rootNamespace": "",
+  "references": [
+    "GUID:1cde36c9829f4035a96fe216fc6af9b4"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

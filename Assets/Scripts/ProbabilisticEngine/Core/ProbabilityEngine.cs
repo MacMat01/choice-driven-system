@@ -1,25 +1,51 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ProbabilisticEngine.Data;
-using ProbabilisticEngine.Runtime;
+using ProbabilisticEngine.Interfaces;
+using ProbabilisticEngine.Utils;
 
 namespace ProbabilisticEngine.Core
 {
-    public class ProbabilityEngine
+    /// <summary>
+    /// Versione generica del ProbabilityEngine.
+    /// Gestisce un pool di ProbabilityItem e seleziona quelli validi.
+    /// </summary>
+    public class ProbabilityEngine<TState, TOption>
+        where TState : IGameState
+        where TOption : IProbabilityOption
     {
-        private readonly Dictionary<string, ProbabilityChoice> _choices;
+        private readonly List<ProbabilityItem<TState, TOption>> _choices;
 
-        public ProbabilityEngine(IEnumerable<ProbabilityChoice> choices)
+        public ProbabilityEngine(IEnumerable<ProbabilityItem<TState, TOption>> choices)
         {
-            _choices = choices.ToDictionary(c => c.Id);
+            _choices = choices.ToList();
         }
 
-        public ProbabilityResult Evaluate(string choiceId, GameState state)
+        /// <summary>
+        /// Filtra i ProbabilityItem che hanno le condizioni rispettate
+        /// e restituisce la lista di quelli validi.
+        /// </summary>
+        public List<ProbabilityItem<TState, TOption>> GetValidChoices(TState state)
         {
-            if (!_choices.TryGetValue(choiceId, out var choice))
+            return _choices.Where(choice => choice.AreConditionsMet(state)).ToList();
+        }
+        
+        public ProbabilityItem<TState, TOption> EvaluateRandom(TState state)
+        {
+            var validChoices = GetValidChoices(state);
+            
+            if (validChoices.Count == 0)
                 return null;
 
-            return choice.Evaluate(state);
+            // Calcola i pesi per ogni choice valido
+            var weights = validChoices.Select(c => c.BaseWeight).ToList();
+            
+            // Seleziona un choice in base ai pesi
+            int index = WeightedRandom.PickIndex(weights);
+            var selectedChoice = validChoices[index];
+            
+            // Restituisce il ProbabilityItem selezionato (non valutato)
+            return selectedChoice;
         }
+        
     }
 }

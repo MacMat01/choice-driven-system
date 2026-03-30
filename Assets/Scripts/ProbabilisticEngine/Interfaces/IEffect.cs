@@ -1,6 +1,6 @@
 ﻿using ProbabilisticEngine.Runtime;
 
-namespace ProbabilisticEngine.Core
+namespace ProbabilisticEngine.Interfaces
 {
     public interface IEffect
     {

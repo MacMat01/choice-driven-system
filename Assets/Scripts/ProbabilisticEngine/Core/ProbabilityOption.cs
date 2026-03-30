@@ -1,34 +1,28 @@
 ﻿using System.Collections.Generic;
+using ProbabilisticEngine.Interfaces;
 using ProbabilisticEngine.Runtime;
 
 namespace ProbabilisticEngine.Core
 {
-    public class ProbabilityOption
+    public class ProbabilityOption : IProbabilityOption
     {
-        public string Id;
-        public float BaseWeight;
+        public string Id { get; }
+        
         public List<IEffect> Effects = new();
-
-        public List<ICondition> Conditions = new();
         public List<IModifier> Modifiers = new();
+        
 
-        public bool AreConditionsMet(GameState state)
+        /**
+         *  TODO as future implementation
+         */
+        public float ApplyModifiers()
         {
-            foreach (var c in Conditions)
-                if (!c.Evaluate(state))
-                    return false;
-
-            return true;
+            return 0f;
         }
-
-        public float ComputeWeight(GameState state)
+        
+        private float ApplyModifiers(float baseWeight, IGameState state)
         {
-            float weight = BaseWeight;
-
-            foreach (var m in Modifiers)
-                weight = m.Apply(weight, state);
-
-            return weight;
+            return 0f; // TODO: implementare logica modificatori
         }
     }
 }

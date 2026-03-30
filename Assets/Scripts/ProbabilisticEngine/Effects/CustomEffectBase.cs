@@ -1,4 +1,4 @@
-﻿using ProbabilisticEngine.Core;
+﻿using ProbabilisticEngine.Interfaces;
 using ProbabilisticEngine.Runtime;
 
 namespace ProbabilisticEngine.Effects

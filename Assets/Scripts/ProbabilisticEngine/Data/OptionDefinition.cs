@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using JetBrains.Annotations;
 
 namespace ProbabilisticEngine.Data
 {
@@ -6,10 +7,7 @@ namespace ProbabilisticEngine.Data
     public class OptionDefinition
     {
         public string Id;
-        public float BaseWeight;
-        
-        public List<ConditionDefinition> Conditions;
-        public List<ModifierDefinition> Modifiers;
-
+        [CanBeNull] public List<EffectDefinition> Effects;
+        [CanBeNull] public List<ModifierDefinition> Modifiers;
     }
 }

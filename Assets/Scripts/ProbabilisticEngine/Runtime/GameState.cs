@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
+using ProbabilisticEngine.Interfaces;
 
 namespace ProbabilisticEngine.Runtime
 {
-    public class GameState
+    public class GameState : IGameState
     {
         private Dictionary<string, int> _resources = new(); // TO DO - MAKE RESOURCES GENERAL
         private HashSet<string> _flags = new();

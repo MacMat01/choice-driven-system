@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Importer.Core.DynamicData
 {
     /// <summary>
-    ///     Schema-driven JSON parser that reads flat JSON objects according to a DataSchemaSO definition.
+    ///     Schema-driven JSON parser that reads JSON objects according to a DataSchemaSO definition.
     ///     Supports either a single object root or an array of objects.
     /// </summary>
     public sealed class SchemaDrivenJsonParser
@@ -252,7 +252,163 @@ namespace Importer.Core.DynamicData
                 }
             }
 
+            ExpandNestedPropertyAliases(properties);
+
             return properties;
+        }
+
+        private static void ExpandNestedPropertyAliases(Dictionary<string, string> properties)
+        {
+            if (properties == null || properties.Count == 0)
+            {
+                return;
+            }
+
+            List<KeyValuePair<string, string>> rootEntries = new List<KeyValuePair<string, string>>(properties);
+            foreach (KeyValuePair<string, string> entry in rootEntries)
+            {
+                if (!TryParseNestedObject(entry.Value, out Dictionary<string, string> nested))
+                {
+                    continue;
+                }
+
+                List<string> rootPath = SplitNameTokens(entry.Key);
+                ExpandNestedObjectIntoAliases(properties, rootPath, nested);
+            }
+        }
+
+        private static void ExpandNestedObjectIntoAliases(
+            Dictionary<string, string> destination,
+            List<string> path,
+            Dictionary<string, string> nestedProperties)
+        {
+            int siblingIndex = 1;
+            foreach (KeyValuePair<string, string> nestedEntry in nestedProperties)
+            {
+                string rawLeafName = nestedEntry.Key;
+                List<string> currentPath = new List<string>(path);
+                currentPath.AddRange(SplitNameTokens(rawLeafName));
+                if (TryParseNestedObject(nestedEntry.Value, out Dictionary<string, string> childObject))
+                {
+                    ExpandNestedObjectIntoAliases(destination, currentPath, childObject);
+                    siblingIndex++;
+                    continue;
+                }
+
+                AddPropertyAlias(destination, string.Join("_", currentPath), nestedEntry.Value);
+
+                if (path.Count >= 1)
+                {
+                    // Preserve unsplit leaf names for schemas using exact camel/pascal tokens (e.g. Left_FollowUp).
+                    AddPropertyAlias(destination, path[0] + "_" + rawLeafName, nestedEntry.Value);
+                }
+
+                if (currentPath.Count >= 2)
+                {
+                    // Common schema style: Parent_Leaf (e.g. Left_Answer from Left_Choice.Answer)
+                    string firstAndLast = currentPath[0] + "_" + currentPath[^1];
+                    AddPropertyAlias(destination, firstAndLast, nestedEntry.Value);
+                }
+
+                if (currentPath.Count >= 3)
+                {
+                    // Generic numbered schema support: Prefix_Attribute1 style mappings.
+                    string prefix = currentPath[0];
+                    // Use the current container name (path tail) instead of leaf-adjacent token.
+                    // This keeps numbering stable for compound leaf keys like Accademic_Performance.
+                    string parentName = path[^1];
+                    string singularParent = SingularizeToken(parentName);
+
+                    AddPropertyAlias(destination, $"{prefix}_{parentName}{siblingIndex}", nestedEntry.Value);
+                    AddPropertyAlias(destination, $"{prefix}_{singularParent}{siblingIndex}", nestedEntry.Value);
+                }
+
+                siblingIndex++;
+            }
+        }
+
+        private static bool TryParseNestedObject(string rawValue, out Dictionary<string, string> nested)
+        {
+            nested = null;
+            if (string.IsNullOrWhiteSpace(rawValue))
+            {
+                return false;
+            }
+
+            string trimmed = rawValue.Trim();
+            if (!trimmed.StartsWith("{", StringComparison.Ordinal) || !trimmed.EndsWith("}", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            nested = ParseObjectProperties(trimmed);
+            return nested.Count > 0;
+        }
+
+        private static void AddPropertyAlias(Dictionary<string, string> destination, string alias, string value)
+        {
+            if (string.IsNullOrWhiteSpace(alias) || !destination.TryAdd(alias, value))
+            {
+            }
+
+        }
+
+        private static string SingularizeToken(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return token;
+            }
+
+            return token.EndsWith("s", StringComparison.OrdinalIgnoreCase)
+                ? token[..^1]
+                : token;
+        }
+
+        private static List<string> SplitNameTokens(string rawName)
+        {
+            List<string> tokens = new List<string>();
+            if (string.IsNullOrWhiteSpace(rawName))
+            {
+                return tokens;
+            }
+
+            StringBuilder token = new StringBuilder();
+            foreach (char c in rawName)
+            {
+                bool isSeparator = c == '_' || c == '-' || char.IsWhiteSpace(c);
+
+                if (isSeparator)
+                {
+                    if (token.Length > 0)
+                    {
+                        tokens.Add(token.ToString());
+                        token.Length = 0;
+                    }
+
+                    continue;
+                }
+
+                if (char.IsUpper(c) && token.Length > 0)
+                {
+                    tokens.Add(token.ToString());
+                    token.Length = 0;
+                }
+
+                token.Append(c);
+            }
+
+            if (token.Length > 0)
+            {
+                tokens.Add(token.ToString());
+            }
+
+            if (tokens.Count == 0)
+            {
+                tokens.Add(rawName);
+            }
+
+            return tokens;
         }
 
         private static bool TryReadJsonString(string text, ref int index, out string result)

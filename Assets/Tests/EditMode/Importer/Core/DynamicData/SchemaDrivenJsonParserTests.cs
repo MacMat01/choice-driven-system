@@ -610,5 +610,30 @@ namespace Tests.EditMode.Importer.Core.DynamicData
             Assert.AreEqual(1, records.Count);
             Assert.AreEqual("npc_001", records[0].GetField("NpcID"));
         }
+
+        [Test]
+        public void ParsesNestedObjects_WithCompoundLeafKeys_ToGenericNumberedAliases()
+        {
+            const string json = "[" +
+                "{\"Card_ID\":101,\"Left_Choice\":{\"Attributes\":{\"Friendship\":10,\"Accademic_Performance\":-10,\"Finance\":-5}},\"Right_Choice\":{\"Attributes\":{\"Friendship\":-10,\"Accademic_Performance\":10,\"Finance\":0}}}" +
+                "]";
+
+            DataSchemaSO schema = ScriptableObject.CreateInstance<DataSchemaSO>();
+            schema.Columns.Add(new ColumnDefinition("Card_ID", ColumnDataType.Int, true));
+            schema.Columns.Add(new ColumnDefinition("Left_Attribute1", ColumnDataType.Int, true));
+            schema.Columns.Add(new ColumnDefinition("Left_Attribute2", ColumnDataType.Int, true));
+            schema.Columns.Add(new ColumnDefinition("Right_Attribute1", ColumnDataType.Int, true));
+            schema.Columns.Add(new ColumnDefinition("Right_Attribute2", ColumnDataType.Int, true));
+
+            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
+            List<DataRecord> records = parser.Parse(json, schema);
+
+            Assert.AreEqual(1, records.Count);
+            Assert.AreEqual(101, records[0].GetField("Card_ID"));
+            Assert.AreEqual(10, records[0].GetField("Left_Attribute1"));
+            Assert.AreEqual(-10, records[0].GetField("Left_Attribute2"));
+            Assert.AreEqual(-10, records[0].GetField("Right_Attribute1"));
+            Assert.AreEqual(10, records[0].GetField("Right_Attribute2"));
+        }
     }
 }

@@ -99,7 +99,7 @@ namespace Importer.Core.DynamicData
 
             if (string.Equals(normalizedExtension, ".json", StringComparison.OrdinalIgnoreCase))
             {
-                records = JsonParser.Parse(rawText, schema);
+                records = SchemaDrivenJsonParser.Parse(rawText, schema);
                 return true;
             }
 

@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Globalization;
 using UnityEngine;
-
 namespace Importer.Core.DynamicData
 {
     /// <summary>
-    /// Shared type conversion helpers used by schema-driven CSV and JSON parsers.
+    ///     Shared type conversion helpers used by schema-driven CSV and JSON parsers.
     /// </summary>
-    internal static class SchemaValueParser
+    static class SchemaValueParser
     {
         public static object ParseCsvCell(string cellValue, ColumnDataType dataType, string columnName, int rowNumber)
         {
@@ -104,4 +103,3 @@ namespace Importer.Core.DynamicData
         }
     }
 }
-

@@ -10,15 +10,10 @@ namespace Importer.Core.DynamicData
     /// </summary>
     public sealed class SchemaDrivenJsonParser
     {
-        public List<DataRecord> Parse(string rawJson, DataSchemaSO schema)
+        public static List<DataRecord> Parse(string rawJson, DataSchemaSO schema)
         {
             List<DataRecord> results = new List<DataRecord>();
-            if (string.IsNullOrWhiteSpace(rawJson) || schema == null)
-            {
-                return results;
-            }
-
-            if (!TryExtractObjectPayloads(rawJson, out List<string> objectPayloads))
+            if (string.IsNullOrWhiteSpace(rawJson) || schema == null || !TryExtractObjectPayloads(rawJson, out List<string> objectPayloads))
             {
                 return results;
             }

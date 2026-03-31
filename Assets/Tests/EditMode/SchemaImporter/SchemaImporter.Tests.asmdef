@@ -1,6 +1,5 @@
 {
   "name": "SchemaImporter.Tests",
-  "rootNamespace": "SchemaImporter.Tests",
   "references": [
     "SchemaImporter"
   ],

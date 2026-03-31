@@ -1,6 +1,5 @@
 ﻿{
   "name": "SchemaImporter",
-  "rootNamespace": "SchemaImporter",
   "references": [],
   "includePlatforms": [],
   "excludePlatforms": [],

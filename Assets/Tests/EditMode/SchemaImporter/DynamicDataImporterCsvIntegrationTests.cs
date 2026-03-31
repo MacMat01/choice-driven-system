@@ -4,7 +4,7 @@ using SchemaImporter.Parsers;
 using SchemaImporter.Schema;
 using UnityEditor;
 using UnityEngine.TestTools;
-namespace SchemaImporter.Tests.Tests.EditMode.SchemaImporter
+namespace Tests.EditMode.SchemaImporter
 {
     public class DynamicDataImporterCsvIntegrationTests
     {

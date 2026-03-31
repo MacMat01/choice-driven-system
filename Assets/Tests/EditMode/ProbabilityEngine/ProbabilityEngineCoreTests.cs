@@ -6,7 +6,7 @@ using ProbabilityEngine.Core;
 using ProbabilityEngine.Interfaces;
 using Random = UnityEngine.Random;
 
-namespace ProbabilityEngine.Tests.Tests.EditMode.ProbabilityEngine
+namespace Tests.EditMode.ProbabilityEngine
 {
     public class ProbabilityEngineCoreTests
     {

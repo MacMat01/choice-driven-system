@@ -1,6 +1,5 @@
 ﻿{
   "name": "ProbabilityEngine",
-  "rootNamespace": "ProbabilityEngine",
   "references": [
     "SchemaImporter"
   ],

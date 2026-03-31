@@ -50,29 +50,6 @@ namespace SchemaImporter.Parsers
             return ImportRaw(sourceFile.text, extension, schema);
         }
 
-        public static List<DataRecord> ImportFromTextAsset(TextAsset textAsset, DataSchemaSO schema)
-        {
-            if (textAsset == null)
-            {
-                return new List<DataRecord>();
-            }
-
-            string extension = Path.GetExtension(textAsset.name);
-            return ImportRaw(textAsset.text, extension, schema);
-        }
-
-        public static List<DataRecord> ImportFromFilePath(string filePath, DataSchemaSO schema)
-        {
-            if (string.IsNullOrWhiteSpace(filePath) || !File.Exists(filePath))
-            {
-                return new List<DataRecord>();
-            }
-
-            string rawText = File.ReadAllText(filePath);
-            string extension = Path.GetExtension(filePath);
-            return ImportRaw(rawText, extension, schema);
-        }
-
         private static string NormalizeExtension(string extension, string rawText)
         {
             if (!string.IsNullOrWhiteSpace(extension))

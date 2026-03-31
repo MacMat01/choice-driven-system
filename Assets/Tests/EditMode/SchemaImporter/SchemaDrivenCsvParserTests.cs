@@ -5,7 +5,7 @@ using SchemaImporter.Schema;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Debug = System.Diagnostics.Debug;
-namespace Tests.EditMode.Importer
+namespace SchemaImporter.Tests.Tests.EditMode.SchemaImporter
 {
     public class SchemaDrivenCsvParserTests
     {

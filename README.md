@@ -1,128 +1,102 @@
-# CDS — Choice Driven System
+# Weighted-Draw-System
 
-> A reusable Unity plugin for event management, built for Unity 6.
+A Unity 6 project with two reusable, domain-agnostic modules:
+- `ProbabilityEngine`: condition-aware weighted selection
+- `SchemaImporter`: schema-driven CSV/JSON data import
 
-**Package:** `com.macmat01.choice-driven-system`  
-**Version:** `1.0.0`  
-**Author:** I tre Moschettieri  
-**Minimum Unity Version:** 6000.4
+This repository is structured as a Unity project.
 
----
+## What This Repo Contains
 
-## Overview
+- `Assets/Scripts/ProbabilityEngine`: generic runtime selection engine
+- `Assets/Scripts/SchemaImporter`: schema-based parsing/import pipeline
+- `Assets/Tests/EditMode/ProbabilityEngine`: edit mode tests for probability logic
+- `Assets/Tests/EditMode/SchemaImporter`: edit mode tests for importer/parser behavior
 
-The **Choice Driven System (CDS)** is a lightweight, reusable Unity plugin designed to streamline event management within your project. It provides a structured way to define, trigger, and respond to in-game choices and events, keeping your codebase decoupled and maintainable.
+## Core Features
 
----
+### ProbabilityEngine
 
-## Requirements
+Use `ProbabilityEngine<TState, TValue>` when you need to:
+- filter options by conditions against runtime state
+- select one valid option by weighted randomness
+- keep logic generic across gameplay contexts (loot, AI, events, etc.)
 
-- Unity **6000.4** or later
-- No additional dependencies required
+Detailed documentation:
+- `Assets/Scripts/ProbabilityEngine/Docs/ProbabilityEngine.md`
 
----
+### SchemaImporter
 
-## Installation
+Use `SchemaImporter` when you need to:
+- import CSV/JSON into typed `DataRecord` rows
+- enforce required fields and type conversion via schema
+- parse condition expressions from data files into structured condition objects
 
-### Via Unity Package Manager (Recommended)
+Detailed documentation:
+- `Assets/Scripts/SchemaImporter/Docs/SchemaImporter.md`
 
-1. Open your project in Unity.
-2. Go to **Window → Package Manager**.
-3. Click the **+** button in the top-left corner and select **Add package from git URL…** (or **Add package from disk…** if installing locally).
-4. Enter the package URL or path and confirm.
+## Start Here
 
-Unity will resolve and install the package automatically.
+1. Define your data table/file (CSV or JSON).
+2. Create and configure a `DataSchemaSO` asset.
+3. Validate imported records and fix warnings.
+4. Tune weights/conditions for balancing.
 
-### Manual Installation
+Read first:
+- `Assets/Scripts/SchemaImporter/Docs/SchemaImporter.md`
+- `Assets/Scripts/ProbabilityEngine/Docs/ProbabilityEngine.md`
 
-1. Clone or download this repository.
-2. In the Unity Package Manager, click **+ → Add package from disk…**.
-3. Navigate to the folder containing `package.json` and select it.
+Then:
 
----
+1. Integrate `SchemaImporter` to load and validate data.
+2. Map imported records into `ProbabilityItem<TState, TValue>`.
+3. Implement `IGameState` and custom `ICondition<TState>` where needed.
+4. Evaluate with `GetValidChoices(...)` and `EvaluateRandom(...)`.
 
-## Package Structure
+Read first:
+- `Assets/Scripts/SchemaImporter/Docs/SchemaImporter.md`
+- `Assets/Scripts/ProbabilityEngine/Docs/ProbabilityEngine.md`
 
-```
-com.macmat01.choice-driven-system/
-├── package.json
-├── README.md
-├── CHANGELOG.md
-├── LICENSE.md
-├── Runtime/                  # Core runtime scripts (included in builds)
-│   ├── CDS.Runtime.asmdef
-│   └── ...
-├── Editor/                   # Editor-only utilities (stripped from builds)
-│   ├── CDS.Editor.asmdef
-│   └── ...
-├── Tests/
-│   ├── Runtime/
-│   └── Editor/
-└── Samples~/                 # Optional samples (import via Package Manager)
-    └── BasicExample/
-```
-
-> **Note:** The `Samples~/` folder uses Unity's tilde convention — its contents are not imported automatically. See the [Samples](#samples) section below.
-
----
-
-## Getting Started
-
-Once the package is installed, you can reference CDS types in your scripts by adding the `CDS.Runtime` assembly reference to your project's `.asmdef` file, or by using it directly if you are not using Assembly Definitions.
+## Minimal Workflow Example
 
 ```csharp
-// Example: subscribing to a CDS event
-using CDS.Runtime;
+// 1) Import data from schema
+List<DataRecord> records = DynamicDataImporter.ImportFromSchema(schema);
 
-public class MyListener : MonoBehaviour
+// 2) Build randomiser facade (schema-driven condition + weight columns)
+var randomiser = new RandomiserSystem(records, schema);
+
+// 3) Evaluate using runtime context
+var context = new Dictionary<string, object>
 {
-    void OnEnable()
-    {
-        // Subscribe to an event channel
-        EventChannel.Subscribe("OnChoiceMade", HandleChoice);
-    }
+    { "playerLevel", 10 },
+    { "hasWeapon", 1 }
+};
 
-    void OnDisable()
-    {
-        EventChannel.Unsubscribe("OnChoiceMade", HandleChoice);
-    }
-
-    void HandleChoice(object data)
-    {
-        Debug.Log("Choice received: " + data);
-    }
-}
+DataRecord selected = randomiser.EvaluateRandom(context);
 ```
 
-> ⚠️ The exact API surface depends on your runtime implementation. Replace the snippet above with your actual classes and method signatures.
+## Project Requirements
 
----
+- Unity 6 (project currently targets `6000.4` in existing docs)
 
-## Samples
+## Testing
 
-CDS ships with an optional sample scene demonstrating basic usage.
+Use Unity Test Runner (Edit Mode) for module verification:
+- `Assets/Tests/EditMode/ProbabilityEngine`
+- `Assets/Tests/EditMode/SchemaImporter`
 
-**To import a sample:**
-
-1. Open **Window → Package Manager**.
-2. Select **CDS — Choice Driven System** from the list.
-3. Open the **Samples** tab.
-4. Click **Import** next to the sample you want.
-
-| Sample | Description |
-|---|---|
-| Basic CDS Example | Simple usage example demonstrating core event management features |
-
-Imported samples are placed under `Assets/Samples/CDS - Choice Driven System/<version>/`.
-
----
+The feature docs also reference the test files that define current expected behavior.
 
 ## Contributing
 
-This package is maintained by **I tre Moschettieri**. If you encounter a bug or have a feature request, please open an issue in the project repository.
-
----
+When changing behavior:
+- update or add tests in `Assets/Tests/EditMode/...`
+- update feature docs in:
+  - `Assets/Scripts/ProbabilityEngine/Docs/ProbabilityEngine.md`
+  - `Assets/Scripts/SchemaImporter/Docs/SchemaImporter.md`
+- keep top-level `README.md` as a navigation and onboarding guide
 
 ## License
 
-See [LICENSE.md](LICENSE.md) for full terms.
+See `LICENSE`.

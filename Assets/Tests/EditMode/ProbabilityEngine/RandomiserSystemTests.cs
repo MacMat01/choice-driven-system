@@ -7,7 +7,7 @@ using SchemaImporter.Parsers;
 using SchemaImporter.Schema;
 using UnityEditor;
 using UnityEngine;
-namespace Tests.EditMode.ProbabilisticEngine
+namespace ProbabilityEngine.Tests.Tests.EditMode.ProbabilityEngine
 {
     public class RandomiserSystemTests
     {

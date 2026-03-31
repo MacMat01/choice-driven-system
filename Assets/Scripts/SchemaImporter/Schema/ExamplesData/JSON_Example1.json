@@ -1,0 +1,226 @@
+[
+  {
+    "Card_ID": 101,
+    "Card_Name": "party_invitation",
+    "Category": "Friendship",
+    "Character": "Sarah",
+    "Question": "Hey, we are throwing a massive house party tonight! You have to come, everyone will be there!",
+    "Is_Unlocked": true,
+    "Pre_Conditions": "Friendship>20",
+    "Weight": 45,
+    "Left_Choice": {
+      "Answer": "I'll be there!",
+      "Attributes": {
+        "Friendship": 10,
+        "Accademic_Performance": -10,
+        "Finance": -5,
+        "Family": 0,
+        "Sleep": -20
+      },
+      "FollowUp": "hangover_morning"
+    },
+    "Right_Choice": {
+      "Answer": "I need to study.",
+      "Attributes": {
+        "Friendship": -10,
+        "Accademic_Performance": 10,
+        "Finance": 0,
+        "Family": 0,
+        "Sleep": 10
+      },
+      "FollowUp": "study_session"
+    }
+  },
+  {
+    "Card_ID": 102,
+    "Card_Name": "hangover_morning",
+    "Category": "Accademic Performance",
+    "Character": "Professor",
+    "Question": "You look exhausted. Did you even prepare for today's pop quiz?",
+    "Is_Unlocked": false,
+    "Pre_Conditions": null,
+    "Weight": 20,
+    "Left_Choice": {
+      "Answer": "Try my best.",
+      "Attributes": {
+        "Friendship": 0,
+        "Accademic_Performance": -20,
+        "Finance": 0,
+        "Family": 0,
+        "Sleep": -5
+      },
+      "FollowUp": null
+    },
+    "Right_Choice": {
+      "Answer": "Skip class and sleep.",
+      "Attributes": {
+        "Friendship": 0,
+        "Accademic_Performance": -40,
+        "Finance": 0,
+        "Family": -10,
+        "Sleep": 20
+      },
+      "FollowUp": "angry_parents"
+    }
+  },
+  {
+    "Card_ID": 103,
+    "Card_Name": "family_dinner",
+    "Category": "Family",
+    "Character": "Mom",
+    "Question": "We haven't seen you in weeks. Can you please come home for dinner this Sunday?",
+    "Is_Unlocked": true,
+    "Pre_Conditions": null,
+    "Weight": 85,
+    "Left_Choice": {
+      "Answer": "Of course, see you Sunday.",
+      "Attributes": {
+        "Friendship": 0,
+        "Accademic_Performance": 0,
+        "Finance": 10,
+        "Family": 20,
+        "Sleep": 0
+      },
+      "FollowUp": null
+    },
+    "Right_Choice": {
+      "Answer": "I'm too busy, sorry.",
+      "Attributes": {
+        "Friendship": 5,
+        "Accademic_Performance": 5,
+        "Finance": 0,
+        "Family": -20,
+        "Sleep": 0
+      },
+      "FollowUp": null
+    }
+  },
+  {
+    "Card_ID": 104,
+    "Card_Name": "laptop_broken",
+    "Category": "Finance",
+    "Character": "Internal",
+    "Question": "Your laptop just died completely. You need a new one for your assignments.",
+    "Is_Unlocked": true,
+    "Pre_Conditions": null,
+    "Weight": 15,
+    "Left_Choice": {
+      "Answer": "Buy a cheap replacement.",
+      "Attributes": {
+        "Friendship": 0,
+        "Accademic_Performance": -5,
+        "Finance": -20,
+        "Family": 0,
+        "Sleep": 0
+      },
+      "FollowUp": null
+    },
+    "Right_Choice": {
+      "Answer": "Ask parents for money.",
+      "Attributes": {
+        "Friendship": 0,
+        "Accademic_Performance": 0,
+        "Finance": 0,
+        "Family": -10,
+        "Sleep": 0
+      },
+      "FollowUp": null
+    }
+  },
+  {
+    "Card_ID": 105,
+    "Card_Name": "study_session",
+    "Category": "Accademic Performance",
+    "Character": "Library",
+    "Question": "The library is quiet and you have 4 hours. How do you spend them?",
+    "Is_Unlocked": false,
+    "Pre_Conditions": null,
+    "Weight": 20,
+    "Left_Choice": {
+      "Answer": "Focus entirely on the exam.",
+      "Attributes": {
+        "Friendship": -5,
+        "Accademic_Performance": 20,
+        "Finance": 0,
+        "Family": 0,
+        "Sleep": -10
+      },
+      "FollowUp": null
+    },
+    "Right_Choice": {
+      "Answer": "Browse social media.",
+      "Attributes": {
+        "Friendship": 5,
+        "Accademic_Performance": -10,
+        "Finance": 0,
+        "Family": 0,
+        "Sleep": 0
+      },
+      "FollowUp": null
+    }
+  },
+  {
+    "Card_ID": 106,
+    "Card_Name": "weekend_trip",
+    "Category": "Friendship",
+    "Character": "Alfonso",
+    "Question": "A few of us are renting a cabin for the weekend! It'll be expensive, but amazing.",
+    "Is_Unlocked": true,
+    "Pre_Conditions": "Finance>40",
+    "Weight": 15,
+    "Left_Choice": {
+      "Answer": "Count me in!",
+      "Attributes": {
+        "Friendship": 20,
+        "Accademic_Performance": 0,
+        "Finance": -20,
+        "Family": 0,
+        "Sleep": 0
+      },
+      "FollowUp": null
+    },
+    "Right_Choice": {
+      "Answer": "I can't afford it.",
+      "Attributes": {
+        "Friendship": -10,
+        "Accademic_Performance": 10,
+        "Finance": 10,
+        "Family": 0,
+        "Sleep": 0
+      },
+      "FollowUp": null
+    }
+  },
+  {
+    "Card_ID": 107,
+    "Card_Name": "angry_parents",
+    "Category": "Family",
+    "Character": "Dad",
+    "Question": "Your professor called us about your attendance. What is going on with you?",
+    "Is_Unlocked": false,
+    "Pre_Conditions": "Accademic_Performance<30",
+    "Weight": 20,
+    "Left_Choice": {
+      "Answer": "Apologize and promise to do better.",
+      "Attributes": {
+        "Friendship": 0,
+        "Accademic_Performance": 10,
+        "Finance": 0,
+        "Family": -10,
+        "Sleep": 0
+      },
+      "FollowUp": null
+    },
+    "Right_Choice": {
+      "Answer": "Get defensive.",
+      "Attributes": {
+        "Friendship": 0,
+        "Accademic_Performance": -5,
+        "Finance": 0,
+        "Family": -40,
+        "Sleep": -5
+      },
+      "FollowUp": null
+    }
+  }
+]

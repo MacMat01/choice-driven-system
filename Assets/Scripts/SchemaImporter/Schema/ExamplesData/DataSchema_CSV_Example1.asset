@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ef2993e41212b7249b9c33d60978a0ab, type: 3}
+  m_Name: DataSchema_CSV_Example1
+  m_EditorClassIdentifier: Importer::Importer.DataSchemaSO
+  columns:
+  - ColumnName: Card_ID
+    DataType: 1
+    IsRequired: 1
+  - ColumnName: Card_Name
+    DataType: 0
+    IsRequired: 1
+  - ColumnName: Category
+    DataType: 0
+    IsRequired: 1
+  - ColumnName: Character
+    DataType: 0
+    IsRequired: 1
+  - ColumnName: Question
+    DataType: 0
+    IsRequired: 1
+  - ColumnName: Is_Unlocked
+    DataType: 3
+    IsRequired: 1
+  - ColumnName: Pre_Conditions
+    DataType: 4
+    IsRequired: 0
+  - ColumnName: Weight
+    DataType: 5
+    IsRequired: 1
+  - ColumnName: Left_Answer
+    DataType: 0
+    IsRequired: 1
+  - ColumnName: Left_Attribute1
+    DataType: 1
+    IsRequired: 1
+  - ColumnName: Left_Attribute2
+    DataType: 1
+    IsRequired: 1
+  - ColumnName: Left_Attribute3
+    DataType: 1
+    IsRequired: 1
+  - ColumnName: Left_Attribute4
+    DataType: 1
+    IsRequired: 1
+  - ColumnName: Left_Attribute5
+    DataType: 1
+    IsRequired: 1
+  - ColumnName: Left_FollowUp
+    DataType: 0
+    IsRequired: 0
+  - ColumnName: Right_Answer
+    DataType: 0
+    IsRequired: 1
+  - ColumnName: Right_Attribute1
+    DataType: 1
+    IsRequired: 1
+  - ColumnName: Right_Attribute2
+    DataType: 1
+    IsRequired: 1
+  - ColumnName: Right_Attribute3
+    DataType: 1
+    IsRequired: 1
+  - ColumnName: Right_Attribute4
+    DataType: 1
+    IsRequired: 1
+  - ColumnName: Right_Attribute5
+    DataType: 1
+    IsRequired: 1
+  - ColumnName: Right_FollowUp
+    DataType: 0
+    IsRequired: 0
+  sourceDataFile: {fileID: 4900000, guid: 2d669f27941c80643bf4b96499cad009, type: 3}

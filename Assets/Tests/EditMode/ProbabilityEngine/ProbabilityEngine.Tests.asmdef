@@ -1,0 +1,22 @@
+﻿{
+  "name": "ProbabilityEngine.Tests",
+  "rootNamespace": "ProbabilityEngine.Tests",
+  "references": [
+    "ProbabilityEngine",
+    "SchemaImporter"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
+}

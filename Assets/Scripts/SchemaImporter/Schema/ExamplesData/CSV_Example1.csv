@@ -1,0 +1,8 @@
+Card_ID,Card_Name,Category,Character,Question,Is_Unlocked,Pre_Conditions,Weight,Left_Answer,Left_Attribute1,Left_Attribute2,Left_Attribute3,Left_Attribute4,Left_Attribute5,Left_FollowUp,Right_Answer,Right_Attribute1,Right_Attribute2,Right_Attribute3,Right_Attribute4,Right_Attribute5,Right_FollowUp
+101,party_invitation,Friendship,Sarah,"Hey, we are throwing a massive house party tonight! You have to come, everyone will be there!",TRUE,Friendship>20,45,I'll be there!,10,-10,-5,0,-20,hangover_morning,I need to study.,-10,10,0,0,10,study_session
+102,hangover_morning,Accademic Performance,Professor,You look exhausted. Did you even prepare for today's pop quiz?,FALSE,,30,Try my best.,0,-20,0,0,-5,,Skip class and sleep.,0,-40,0,-10,20,angry_parents
+103,family_dinner,Family,Mom,We haven't seen you in weeks. Can you please come home for dinner this Sunday?,TRUE,,85,"Of course, see you Sunday.",0,0,10,20,0,,"I'm too busy, sorry.",5,5,0,-20,0,
+104,laptop_broken,Finance,Internal,Your laptop just died completely. You need a new one for your assignments.,TRUE,,15,Buy a cheap replacement.,0,-5,-20,0,0,,Ask parents for money.,0,0,0,-10,0,
+105,study_session,Accademic Performance,Library,The library is quiet and you have 4 hours. How do you spend them?,FALSE,,5,Focus entirely on the exam.,-5,20,0,0,-10,,Browse social media.,5,-10,0,0,0,
+106,weekend_trip,Friendship,Alfonso,"A few of us are renting a cabin for the weekend! It'll be expensive, but amazing.",TRUE,Finance>40,15,Count me in!,20,0,-20,0,0,,I can't afford it.,-10,10,10,0,0,
+107,angry_parents,Family,Dad,Your professor called us about your attendance. What is going on with you?,FALSE,Accademic Performance<30,25,Apologize and promise to do better.,0,10,0,-10,0,,Get defensive.,0,-5,0,-40,-5,

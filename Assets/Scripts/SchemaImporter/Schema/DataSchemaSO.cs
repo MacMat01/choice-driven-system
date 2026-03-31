@@ -7,7 +7,7 @@ namespace SchemaImporter.Schema
     ///     ScriptableObject that defines the schema for data import.
     ///     Designers define expected columns and must also assign a CSV/JSON source file.
     /// </summary>
-    [CreateAssetMenu(fileName = "DataSchema", menuName = "Importer/Data Schema")]
+    [CreateAssetMenu(fileName = "DataSchema", menuName = "SchemaImporter/Data Schema")]
     // ReSharper disable once InconsistentNaming
     public class DataSchemaSO : ScriptableObject
     {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 namespace SchemaImporter.Schema
 {
@@ -25,19 +24,6 @@ namespace SchemaImporter.Schema
 
         public List<ColumnDefinition> Columns => columns;
         public TextAsset SourceDataFile => sourceDataFile;
-
-        public ColumnDefinition GetColumn(string columnName)
-        {
-            foreach (ColumnDefinition column in Columns)
-            {
-                if (string.Equals(column.ColumnName, columnName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return column;
-                }
-            }
-
-            return null;
-        }
 
         public bool HasSourceDataFile()
         {

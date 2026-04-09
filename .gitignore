@@ -78,6 +78,8 @@ StyleCopReport.xml
 *_h.h
 *.ilk
 *.meta
+!Packages/com.macmat01.weighted-draw-system/*.meta
+!Packages/com.macmat01.weighted-draw-system/**/*.meta
 *.obj
 *.iobj
 *.pch

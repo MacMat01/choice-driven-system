@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ef2993e41212b7249b9c33d60978a0ab, type: 3}
-  m_Name: DataSchema_JSON_Example1
+  m_Name: DataSchema_CSV_Example1
   m_EditorClassIdentifier: Importer::Importer.DataSchemaSO
   columns:
   - ColumnName: Card_ID
@@ -79,4 +79,4 @@ MonoBehaviour:
   - ColumnName: Right_FollowUp
     DataType: 0
     IsRequired: 0
-  sourceDataFile: {fileID: 4900000, guid: 3e6291f0f0bd531469652509ebb4df5f, type: 3}
+  sourceDataFile: {fileID: 4900000, guid: 408c7b47ba6158847a48d775797cf758, type: 3}

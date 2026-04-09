@@ -11,8 +11,8 @@ namespace Tests.EditMode.ProbabilityEngine
 {
     public class RandomiserSystemTests
     {
-        private const string csvAssetPath = "Assets/Scripts/SchemaImporter/Schema/ExamplesData/DataSchema_CSV_Example1.asset";
-        private const string jsonAssetPath = "Assets/Scripts/SchemaImporter/Schema/ExamplesData/DataSchema_JSON_Example1.asset";
+        private const string csvAssetPath = "Packages/com.macmat01.weighted-draw-system/Tests/EditMode/Fixtures/DataSchema_CSV_Example1.asset";
+        private const string jsonAssetPath = "Packages/com.macmat01.weighted-draw-system/Tests/EditMode/Fixtures/DataSchema_JSON_Example1.asset";
 
         [SetUp]
         public void SetUp()

@@ -6,16 +6,18 @@ using UnityEditor;
 using UnityEngine.TestTools;
 namespace Tests.EditMode.SchemaImporter
 {
-    public class DynamicDataImporterCsvIntegrationTests
+    public class DynamicDataImporterJsonIntegrationTests
     {
-        private const string csvAssetPath = "Assets/Scripts/SchemaImporter/Schema/ExamplesData/DataSchema_CSV_Example1.asset";
+        private const string jsonAssetPath = "Packages/com.macmat01.weighted-draw-system/Tests/EditMode/Fixtures/DataSchema_JSON_Example1.asset";
 
         [Test]
-        public void ImportFromSchema_ParsesCsvExample1_AllRowsAndFields()
+        public void ImportFromSchema_ParsesJsonExample1_AllRowsAndFields()
         {
-            DataSchemaSO schema = AssetDatabase.LoadAssetAtPath<DataSchemaSO>(csvAssetPath);
-            Assert.IsNotNull(schema, $"Missing schema asset at '{csvAssetPath}'.");
+            DataSchemaSO schema = AssetDatabase.LoadAssetAtPath<DataSchemaSO>(jsonAssetPath);
+            Assert.IsNotNull(schema, $"Missing schema asset at '{jsonAssetPath}'.");
             Assert.IsTrue(schema.HasSourceDataFile(), "Schema is expected to have a source TextAsset assigned.");
+            string sourceAssetPath = AssetDatabase.GetAssetPath(schema.SourceDataFile);
+            Assert.That(sourceAssetPath, Does.EndWith(".json").IgnoreCase);
 
             List<DataRecord> records = DynamicDataImporter.ImportFromSchema(schema);
 
@@ -58,14 +60,14 @@ namespace Tests.EditMode.SchemaImporter
                     Character = "Professor",
                     Question = "You look exhausted. Did you even prepare for today's pop quiz?",
                     IsUnlocked = false,
-                    Weight = 30,
+                    Weight = 20,
                     LeftAnswer = "Try my best.",
                     LeftAttribute1 = 0,
                     LeftAttribute2 = -20,
                     LeftAttribute3 = 0,
                     LeftAttribute4 = 0,
                     LeftAttribute5 = -5,
-                    LeftFollowUp = string.Empty,
+                    LeftFollowUp = null,
                     PreConditionVariable = string.Empty,
                     RightAnswer = "Skip class and sleep.",
                     RightAttribute1 = 0,
@@ -90,7 +92,7 @@ namespace Tests.EditMode.SchemaImporter
                     LeftAttribute3 = 10,
                     LeftAttribute4 = 20,
                     LeftAttribute5 = 0,
-                    LeftFollowUp = string.Empty,
+                    LeftFollowUp = null,
                     PreConditionVariable = string.Empty,
                     RightAnswer = "I'm too busy, sorry.",
                     RightAttribute1 = 5,
@@ -98,7 +100,7 @@ namespace Tests.EditMode.SchemaImporter
                     RightAttribute3 = 0,
                     RightAttribute4 = -20,
                     RightAttribute5 = 0,
-                    RightFollowUp = string.Empty
+                    RightFollowUp = null
                 },
                 new ExpectedRow
                 {
@@ -115,7 +117,7 @@ namespace Tests.EditMode.SchemaImporter
                     LeftAttribute3 = -20,
                     LeftAttribute4 = 0,
                     LeftAttribute5 = 0,
-                    LeftFollowUp = string.Empty,
+                    LeftFollowUp = null,
                     PreConditionVariable = string.Empty,
                     RightAnswer = "Ask parents for money.",
                     RightAttribute1 = 0,
@@ -123,7 +125,7 @@ namespace Tests.EditMode.SchemaImporter
                     RightAttribute3 = 0,
                     RightAttribute4 = -10,
                     RightAttribute5 = 0,
-                    RightFollowUp = string.Empty
+                    RightFollowUp = null
                 },
                 new ExpectedRow
                 {
@@ -133,14 +135,14 @@ namespace Tests.EditMode.SchemaImporter
                     Character = "Library",
                     Question = "The library is quiet and you have 4 hours. How do you spend them?",
                     IsUnlocked = false,
-                    Weight = 5,
+                    Weight = 20,
                     LeftAnswer = "Focus entirely on the exam.",
                     LeftAttribute1 = -5,
                     LeftAttribute2 = 20,
                     LeftAttribute3 = 0,
                     LeftAttribute4 = 0,
                     LeftAttribute5 = -10,
-                    LeftFollowUp = string.Empty,
+                    LeftFollowUp = null,
                     PreConditionVariable = string.Empty,
                     RightAnswer = "Browse social media.",
                     RightAttribute1 = 5,
@@ -148,7 +150,7 @@ namespace Tests.EditMode.SchemaImporter
                     RightAttribute3 = 0,
                     RightAttribute4 = 0,
                     RightAttribute5 = 0,
-                    RightFollowUp = string.Empty
+                    RightFollowUp = null
                 },
                 new ExpectedRow
                 {
@@ -165,7 +167,7 @@ namespace Tests.EditMode.SchemaImporter
                     LeftAttribute3 = -20,
                     LeftAttribute4 = 0,
                     LeftAttribute5 = 0,
-                    LeftFollowUp = string.Empty,
+                    LeftFollowUp = null,
                     PreConditionVariable = "Finance",
                     PreConditionOperator = ">",
                     PreConditionValue = 40f,
@@ -175,7 +177,7 @@ namespace Tests.EditMode.SchemaImporter
                     RightAttribute3 = 10,
                     RightAttribute4 = 0,
                     RightAttribute5 = 0,
-                    RightFollowUp = string.Empty
+                    RightFollowUp = null
                 },
                 new ExpectedRow
                 {
@@ -185,15 +187,15 @@ namespace Tests.EditMode.SchemaImporter
                     Character = "Dad",
                     Question = "Your professor called us about your attendance. What is going on with you?",
                     IsUnlocked = false,
-                    Weight = 25,
+                    Weight = 20,
                     LeftAnswer = "Apologize and promise to do better.",
                     LeftAttribute1 = 0,
                     LeftAttribute2 = 10,
                     LeftAttribute3 = 0,
                     LeftAttribute4 = -10,
                     LeftAttribute5 = 0,
-                    LeftFollowUp = string.Empty,
-                    PreConditionVariable = "Accademic Performance",
+                    LeftFollowUp = null,
+                    PreConditionVariable = "Accademic_Performance",
                     PreConditionOperator = "<",
                     PreConditionValue = 30f,
                     RightAnswer = "Get defensive.",
@@ -202,7 +204,7 @@ namespace Tests.EditMode.SchemaImporter
                     RightAttribute3 = 0,
                     RightAttribute4 = -40,
                     RightAttribute5 = -5,
-                    RightFollowUp = string.Empty
+                    RightFollowUp = null
                 }
             };
 

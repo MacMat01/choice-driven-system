@@ -1,50 +1,67 @@
-# Weighted-Draw-System
+# Weighted Draw System
 
-A Unity 6 project with two reusable, domain-agnostic modules:
+A Unity 6 package and source repository containing two reusable, domain-agnostic modules:
+
 - `ProbabilityEngine`: condition-aware weighted selection
 - `SchemaImporter`: schema-driven CSV/JSON data import
 
-This repository is structured as a Unity project.
+The package lives under `Packages/com.macmat01.weighted-draw-system` and is structured for Unity Package Manager, Git-based installation, and local development.
 
-## What This Repo Contains
+## Package Layout
 
-- `Assets/Scripts/ProbabilityEngine`: generic runtime selection engine
-- `Assets/Scripts/SchemaImporter`: schema-based parsing/import pipeline
-- `Assets/Tests/EditMode/ProbabilityEngine`: edit mode tests for probability logic
-- `Assets/Tests/EditMode/SchemaImporter`: edit mode tests for importer/parser behavior
+- `Packages/com.macmat01.weighted-draw-system/Runtime/ProbabilityEngine`: runtime weighted-selection engine
+- `Packages/com.macmat01.weighted-draw-system/Runtime/SchemaImporter`: runtime import/parsing pipeline
+- `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/ProbabilityEngine`: Edit Mode tests for the probability engine
+- `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/SchemaImporter`: Edit Mode tests for the importer and parsers
+- `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/Fixtures`: test-only schema/data assets
+- `Packages/com.macmat01.weighted-draw-system/Documentation~`: package documentation
 
-## Core Features
+## Install Options
 
-### ProbabilityEngine
+### Local package
+
+Open the Unity project and keep the package under `Packages/com.macmat01.weighted-draw-system`.
+
+### Git-based install
+
+Use the package folder as a Git dependency in Unity Package Manager.
+
+### Package Manager
+
+The package manifest is `Packages/com.macmat01.weighted-draw-system/package.json`.
+
+## Core Modules
+
+### `ProbabilityEngine`
 
 Use `ProbabilityEngine<TState, TValue>` when you need to:
+
 - filter options by conditions against runtime state
 - select one valid option by weighted randomness
-- keep logic generic across gameplay contexts (loot, AI, events, etc.)
+- keep logic generic across gameplay contexts such as loot, AI, and events
 
 Detailed documentation:
-- `Assets/Scripts/ProbabilityEngine/Docs/ProbabilityEngine.md`
 
-### SchemaImporter
+- `Packages/com.macmat01.weighted-draw-system/Documentation~/ProbabilityEngine.md`
+
+### `SchemaImporter`
 
 Use `SchemaImporter` when you need to:
+
 - import CSV/JSON into typed `DataRecord` rows
 - enforce required fields and type conversion via schema
 - parse condition expressions from data files into structured condition objects
 
 Detailed documentation:
-- `Assets/Scripts/SchemaImporter/Docs/SchemaImporter.md`
 
-## Start Here
+- `Packages/com.macmat01.weighted-draw-system/Documentation~/SchemaImporter.md`
 
-1. Define your data table/file (CSV or JSON).
+## Quick Start
+
+1. Open the Unity project with the package installed.
 2. Create and configure a `DataSchemaSO` asset.
-3. Validate imported records and fix warnings.
-4. Tune weights/conditions for balancing.
-
-Read first:
-- `Assets/Scripts/SchemaImporter/Docs/SchemaImporter.md`
-- `Assets/Scripts/ProbabilityEngine/Docs/ProbabilityEngine.md`
+3. Load the example fixtures from `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/Fixtures` when validating tests.
+4. Tune weights and conditions for balancing.
 
 Then:
 
@@ -53,20 +70,13 @@ Then:
 3. Implement `IGameState` and custom `ICondition<TState>` where needed.
 4. Evaluate with `GetValidChoices(...)` and `EvaluateRandom(...)`.
 
-Read first:
-- `Assets/Scripts/SchemaImporter/Docs/SchemaImporter.md`
-- `Assets/Scripts/ProbabilityEngine/Docs/ProbabilityEngine.md`
-
 ## Minimal Workflow Example
 
 ```csharp
-// 1) Import data from schema
 List<DataRecord> records = DynamicDataImporter.ImportFromSchema(schema);
 
-// 2) Build randomiser facade (schema-driven condition + weight columns)
 var randomiser = new RandomiserSystem(records, schema);
 
-// 3) Evaluate using runtime context
 var context = new Dictionary<string, object>
 {
     { "playerLevel", 10 },
@@ -76,26 +86,22 @@ var context = new Dictionary<string, object>
 DataRecord selected = randomiser.EvaluateRandom(context);
 ```
 
-## Project Requirements
-
-- Unity 6 (project currently targets `6000.4` in existing docs)
-
 ## Testing
 
-Use Unity Test Runner (Edit Mode) for module verification:
-- `Assets/Tests/EditMode/ProbabilityEngine`
-- `Assets/Tests/EditMode/SchemaImporter`
+Run the Unity Test Runner in Edit Mode and target:
 
-The feature docs also reference the test files that define current expected behavior.
+- `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/ProbabilityEngine`
+- `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/SchemaImporter`
+
+The fixture assets used by these tests live in `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/Fixtures`.
 
 ## Contributing
 
 When changing behavior:
-- update or add tests in `Assets/Tests/EditMode/...`
-- update feature docs in:
-  - `Assets/Scripts/ProbabilityEngine/Docs/ProbabilityEngine.md`
-  - `Assets/Scripts/SchemaImporter/Docs/SchemaImporter.md`
-- keep top-level `README.md` as a navigation and onboarding guide
+
+- update or add tests in `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/...`
+- update package docs in `Packages/com.macmat01.weighted-draw-system/Documentation~/`
+- keep the package README and this root README aligned with the package structure
 
 ## License
 

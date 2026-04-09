@@ -1,76 +1,69 @@
 # Weighted Draw System
 
-A Unity 6 package and source repository containing two reusable, domain-agnostic modules:
+Weighted Draw System is a Unity package that helps you build data-driven random choice systems.
 
-- `ProbabilityEngine`: condition-aware weighted selection
-- `SchemaImporter`: schema-driven CSV/JSON data import
+It includes two reusable modules:
 
-The package lives under `Packages/com.macmat01.weighted-draw-system` and is structured for Unity Package Manager, Git-based installation, and local development.
+- `ProbabilityEngine`: weighted selection with condition filtering
+- `SchemaImporter`: schema-based CSV and JSON import into typed records
 
-## Package Layout
+This repository contains the full Unity project plus the package source at `Packages/com.macmat01.weighted-draw-system`.
 
-- `Packages/com.macmat01.weighted-draw-system/Runtime/ProbabilityEngine`: runtime weighted-selection engine
-- `Packages/com.macmat01.weighted-draw-system/Runtime/SchemaImporter`: runtime import/parsing pipeline
-- `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/ProbabilityEngine`: Edit Mode tests for the probability engine
-- `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/SchemaImporter`: Edit Mode tests for the importer and parsers
-- `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/Fixtures`: test-only schema/data assets
-- `Packages/com.macmat01.weighted-draw-system/Documentation~`: package documentation
+## What This Package Is For
 
-## Install Options
+Use this package when you want to:
 
-### Local package
+- load gameplay tables from CSV or JSON
+- validate and convert imported data with a schema
+- evaluate conditional weighted choices at runtime
 
-Open the Unity project and keep the package under `Packages/com.macmat01.weighted-draw-system`.
+Typical use cases include loot tables, dialogue branching, encounter rolls, and event selection.
 
-### Git-based install
+## Install
 
-Use the package folder as a Git dependency in Unity Package Manager.
+### Unity Package Manager (Git URL)
 
-### Package Manager
+Because the `package.json` is inside a subfolder, use the Git URL with a `path` query:
 
-The package manifest is `Packages/com.macmat01.weighted-draw-system/package.json`.
+```text
+https://github.com/MacMat01/weighted-draw-system.git?path=/Packages/com.macmat01.weighted-draw-system
+```
 
-## Core Modules
+Optional: pin to a branch, tag, or commit with `#revision`:
 
-### `ProbabilityEngine`
+```text
+https://github.com/MacMat01/weighted-draw-system.git?path=/Packages/com.macmat01.weighted-draw-system#main
+```
 
-Use `ProbabilityEngine<TState, TValue>` when you need to:
+### Add Through `manifest.json`
 
-- filter options by conditions against runtime state
-- select one valid option by weighted randomness
-- keep logic generic across gameplay contexts such as loot, AI, and events
+```json
+{
+  "dependencies": {
+    "com.macmat01.weighted-draw-system": "https://github.com/MacMat01/weighted-draw-system.git?path=/Packages/com.macmat01.weighted-draw-system"
+  }
+}
+```
 
-Detailed documentation:
+### Local Development
 
-- `Packages/com.macmat01.weighted-draw-system/Documentation~/ProbabilityEngine.md`
+Keep the package in place at `Packages/com.macmat01.weighted-draw-system` inside this repository.
 
-### `SchemaImporter`
+## Package Structure
 
-Use `SchemaImporter` when you need to:
+- `Packages/com.macmat01.weighted-draw-system/package.json`
+- `Packages/com.macmat01.weighted-draw-system/Runtime/ProbabilityEngine`
+- `Packages/com.macmat01.weighted-draw-system/Runtime/SchemaImporter`
+- `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/ProbabilityEngine`
+- `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/SchemaImporter`
+- `Packages/com.macmat01.weighted-draw-system/Documentation`
 
-- import CSV/JSON into typed `DataRecord` rows
-- enforce required fields and type conversion via schema
-- parse condition expressions from data files into structured condition objects
+## Quick Workflow
 
-Detailed documentation:
-
-- `Packages/com.macmat01.weighted-draw-system/Documentation~/SchemaImporter.md`
-
-## Quick Start
-
-1. Open the Unity project with the package installed.
-2. Create and configure a `DataSchemaSO` asset.
-3. Load the example fixtures from `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/Fixtures` when validating tests.
-4. Tune weights and conditions for balancing.
-
-Then:
-
-1. Integrate `SchemaImporter` to load and validate data.
-2. Map imported records into `ProbabilityItem<TState, TValue>`.
-3. Implement `IGameState` and custom `ICondition<TState>` where needed.
-4. Evaluate with `GetValidChoices(...)` and `EvaluateRandom(...)`.
-
-## Minimal Workflow Example
+1. Define a `DataSchemaSO` for your data format.
+2. Import CSV or JSON rows with `DynamicDataImporter`.
+3. Convert imported records into weighted choices.
+4. Evaluate valid options with `ProbabilityEngine` or `RandomiserSystem`.
 
 ```csharp
 List<DataRecord> records = DynamicDataImporter.ImportFromSchema(schema);
@@ -86,22 +79,19 @@ var context = new Dictionary<string, object>
 DataRecord selected = randomiser.EvaluateRandom(context);
 ```
 
+## Module Docs
+
+- `Packages/com.macmat01.weighted-draw-system/README.md`
+- `Packages/com.macmat01.weighted-draw-system/Documentation/ProbabilityEngine.md`
+- `Packages/com.macmat01.weighted-draw-system/Documentation/SchemaImporter.md`
+
 ## Testing
 
-Run the Unity Test Runner in Edit Mode and target:
+Run Unity Edit Mode tests in:
 
 - `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/ProbabilityEngine`
 - `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/SchemaImporter`
 
-The fixture assets used by these tests live in `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/Fixtures`.
-
-## Contributing
-
-When changing behavior:
-
-- update or add tests in `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/...`
-- update package docs in `Packages/com.macmat01.weighted-draw-system/Documentation~/`
-- keep the package README and this root README aligned with the package structure
 
 ## License
 

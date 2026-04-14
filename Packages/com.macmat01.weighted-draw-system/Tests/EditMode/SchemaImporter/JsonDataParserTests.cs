@@ -7,7 +7,7 @@ using UnityEngine.TestTools;
 using Debug = System.Diagnostics.Debug;
 namespace Tests.EditMode.SchemaImporter
 {
-    public class SchemaDrivenJsonParserTests
+    public class JsonDataParserTests
     {
         private static DataSchemaSO CreateNpcSchema()
         {
@@ -33,8 +33,8 @@ namespace Tests.EditMode.SchemaImporter
                 "]";
 
             DataSchemaSO schema = CreateNpcSchema();
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(3, records.Count);
 
@@ -69,8 +69,8 @@ namespace Tests.EditMode.SchemaImporter
                 "]";
 
             DataSchemaSO schema = CreateNpcSchema();
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(4, records.Count);
 
@@ -90,8 +90,8 @@ namespace Tests.EditMode.SchemaImporter
                 "]";
 
             DataSchemaSO schema = CreateNpcSchema();
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(3, records.Count);
 
@@ -128,8 +128,8 @@ namespace Tests.EditMode.SchemaImporter
                 "]";
 
             DataSchemaSO schema = CreateNpcSchema();
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(3, records.Count);
 
@@ -166,8 +166,8 @@ namespace Tests.EditMode.SchemaImporter
                 "]";
 
             DataSchemaSO schema = CreateNpcSchema();
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(3, records.Count);
 
@@ -201,8 +201,8 @@ namespace Tests.EditMode.SchemaImporter
             const string json = "{\"NpcID\":\"npc_solo\",\"NpcName\":\"Solo NPC\",\"Role\":\"Lone\",\"Level\":7,\"Reputation\":0.5,\"IsActive\":true,\"SpawnConditions\":\"level>=5\"}";
 
             DataSchemaSO schema = CreateNpcSchema();
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(1, records.Count);
             Assert.AreEqual("npc_solo", records[0].GetField("NpcID"));
@@ -220,8 +220,8 @@ namespace Tests.EditMode.SchemaImporter
                 "]";
 
             DataSchemaSO schema = CreateNpcSchema();
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(3, records.Count);
 
@@ -248,8 +248,8 @@ namespace Tests.EditMode.SchemaImporter
                 "]";
 
             DataSchemaSO schema = CreateNpcSchema();
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(3, records.Count);
 
@@ -271,8 +271,8 @@ namespace Tests.EditMode.SchemaImporter
                 "]";
 
             DataSchemaSO schema = CreateNpcSchema();
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(1, records.Count);
             Assert.AreEqual("npc_001", records[0].GetField("NpcID"));
@@ -290,8 +290,8 @@ namespace Tests.EditMode.SchemaImporter
                 "]";
 
             DataSchemaSO schema = CreateNpcSchema();
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(3, records.Count);
 
@@ -321,8 +321,8 @@ namespace Tests.EditMode.SchemaImporter
                 "]";
 
             DataSchemaSO schema = CreateNpcSchema();
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(3, records.Count);
             Assert.That((float)records[0].GetField("Reputation"), Is.EqualTo(0.333333f).Within(0.0001f));
@@ -339,8 +339,8 @@ namespace Tests.EditMode.SchemaImporter
                 "]";
 
             DataSchemaSO schema = CreateNpcSchema();
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(2, records.Count);
             Assert.AreEqual(-5, records[0].GetField("Level"));
@@ -358,8 +358,8 @@ namespace Tests.EditMode.SchemaImporter
                 "]";
 
             DataSchemaSO schema = CreateNpcSchema();
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(4, records.Count);
             Assert.AreEqual(true, records[0].GetField("IsActive"));
@@ -377,8 +377,8 @@ namespace Tests.EditMode.SchemaImporter
                 "]";
 
             DataSchemaSO schema = CreateNpcSchema();
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(2, records.Count);
             Assert.AreEqual("npc_001", records[0].GetField("NpcID"));
@@ -394,8 +394,8 @@ namespace Tests.EditMode.SchemaImporter
                 "]";
 
             DataSchemaSO schema = CreateNpcSchema();
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(2, records.Count);
 
@@ -426,8 +426,8 @@ namespace Tests.EditMode.SchemaImporter
                 "]";
 
             DataSchemaSO schema = CreateNpcSchema();
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(5, records.Count);
 
@@ -449,8 +449,8 @@ namespace Tests.EditMode.SchemaImporter
 
             DataSchemaSO schema = CreateNpcSchema();
             // All columns are optional by default
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             // All records should be accepted since columns are optional
             Assert.AreEqual(3, records.Count);
@@ -477,13 +477,13 @@ namespace Tests.EditMode.SchemaImporter
             schema.Columns.Add(new ColumnDefinition("IsActive", ColumnDataType.Bool));
             schema.Columns.Add(new ColumnDefinition("SpawnConditions", ColumnDataType.ConditionList));
 
-            LogAssert.Expect(LogType.Error, "SchemaDrivenJsonParser: Required field 'NpcID' is empty at item 2.");
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenJsonParser: Skipping item 2 due to missing required fields.");
-            LogAssert.Expect(LogType.Error, "SchemaDrivenJsonParser: Required field 'NpcName' is empty at item 3.");
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenJsonParser: Skipping item 3 due to missing required fields.");
+            LogAssert.Expect(LogType.Error, "JsonDataParser: Required field 'NpcID' is empty at item 2.");
+            LogAssert.Expect(LogType.Warning, "JsonDataParser: Skipping item 2 due to missing required fields.");
+            LogAssert.Expect(LogType.Error, "JsonDataParser: Required field 'NpcName' is empty at item 3.");
+            LogAssert.Expect(LogType.Warning, "JsonDataParser: Skipping item 3 due to missing required fields.");
 
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             // Only the first NPC should be accepted (2nd has empty NpcID, 3rd has null NpcName)
             Assert.AreEqual(1, records.Count);
@@ -508,13 +508,13 @@ namespace Tests.EditMode.SchemaImporter
             schema.Columns.Add(new ColumnDefinition("IsActive", ColumnDataType.Bool));
             schema.Columns.Add(new ColumnDefinition("SpawnConditions", ColumnDataType.ConditionList, true));
 
-            LogAssert.Expect(LogType.Error, "SchemaDrivenJsonParser: Required field 'SpawnConditions' is empty at item 2.");
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenJsonParser: Skipping item 2 due to missing required fields.");
-            LogAssert.Expect(LogType.Error, "SchemaDrivenJsonParser: Required field 'SpawnConditions' not found at item 3.");
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenJsonParser: Skipping item 3 due to missing required fields.");
+            LogAssert.Expect(LogType.Error, "JsonDataParser: Required field 'SpawnConditions' is empty at item 2.");
+            LogAssert.Expect(LogType.Warning, "JsonDataParser: Skipping item 2 due to missing required fields.");
+            LogAssert.Expect(LogType.Error, "JsonDataParser: Required field 'SpawnConditions' not found at item 3.");
+            LogAssert.Expect(LogType.Warning, "JsonDataParser: Skipping item 3 due to missing required fields.");
 
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             // Only npc_001 should be accepted (npc_002 has empty, npc_003 is missing SpawnConditions)
             Assert.AreEqual(1, records.Count);
@@ -539,13 +539,13 @@ namespace Tests.EditMode.SchemaImporter
             schema.Columns.Add(new ColumnDefinition("IsActive", ColumnDataType.Bool));
             schema.Columns.Add(new ColumnDefinition("SpawnConditions", ColumnDataType.ConditionList));
 
-            LogAssert.Expect(LogType.Error, "SchemaDrivenJsonParser: Required field 'NpcName' is empty at item 2.");
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenJsonParser: Skipping item 2 due to missing required fields.");
-            LogAssert.Expect(LogType.Error, "SchemaDrivenJsonParser: Required field 'NpcID' is empty at item 3.");
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenJsonParser: Skipping item 3 due to missing required fields.");
+            LogAssert.Expect(LogType.Error, "JsonDataParser: Required field 'NpcName' is empty at item 2.");
+            LogAssert.Expect(LogType.Warning, "JsonDataParser: Skipping item 2 due to missing required fields.");
+            LogAssert.Expect(LogType.Error, "JsonDataParser: Required field 'NpcID' is empty at item 3.");
+            LogAssert.Expect(LogType.Warning, "JsonDataParser: Skipping item 3 due to missing required fields.");
 
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             // Only npc_001 should be accepted
             // npc_001: has all required fields (NpcID, NpcName, Level)
@@ -572,13 +572,13 @@ namespace Tests.EditMode.SchemaImporter
             schema.Columns.Add(new ColumnDefinition("IsActive", ColumnDataType.Bool));
             schema.Columns.Add(new ColumnDefinition("SpawnConditions", ColumnDataType.ConditionList));
 
-            LogAssert.Expect(LogType.Error, "SchemaDrivenJsonParser: Required field 'NpcID' is empty at item 1.");
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenJsonParser: Skipping item 1 due to missing required fields.");
-            LogAssert.Expect(LogType.Error, "SchemaDrivenJsonParser: Required field 'NpcName' is empty at item 2.");
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenJsonParser: Skipping item 2 due to missing required fields.");
+            LogAssert.Expect(LogType.Error, "JsonDataParser: Required field 'NpcID' is empty at item 1.");
+            LogAssert.Expect(LogType.Warning, "JsonDataParser: Skipping item 1 due to missing required fields.");
+            LogAssert.Expect(LogType.Error, "JsonDataParser: Required field 'NpcName' is empty at item 2.");
+            LogAssert.Expect(LogType.Warning, "JsonDataParser: Skipping item 2 due to missing required fields.");
 
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             // Both should fail - whitespace-only values on required fields are treated as empty
             Assert.AreEqual(0, records.Count);
@@ -601,11 +601,11 @@ namespace Tests.EditMode.SchemaImporter
             schema.Columns.Add(new ColumnDefinition("IsActive", ColumnDataType.Bool));
             schema.Columns.Add(new ColumnDefinition("SpawnConditions", ColumnDataType.ConditionList));
 
-            LogAssert.Expect(LogType.Error, "SchemaDrivenJsonParser: Required field 'NpcName' not found at item 2.");
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenJsonParser: Skipping item 2 due to missing required fields.");
+            LogAssert.Expect(LogType.Error, "JsonDataParser: Required field 'NpcName' not found at item 2.");
+            LogAssert.Expect(LogType.Warning, "JsonDataParser: Skipping item 2 due to missing required fields.");
 
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             // Only npc_001 should be accepted (npc_002 is missing required NpcName field)
             Assert.AreEqual(1, records.Count);
@@ -626,8 +626,8 @@ namespace Tests.EditMode.SchemaImporter
             schema.Columns.Add(new ColumnDefinition("Right_Attribute1", ColumnDataType.Int, true));
             schema.Columns.Add(new ColumnDefinition("Right_Attribute2", ColumnDataType.Int, true));
 
-            SchemaDrivenJsonParser parser = new SchemaDrivenJsonParser();
-            List<DataRecord> records = SchemaDrivenJsonParser.Parse(json, schema);
+            JsonDataParser dataParser = new JsonDataParser();
+            List<DataRecord> records = JsonDataParser.Parse(json, schema);
 
             Assert.AreEqual(1, records.Count);
             Assert.AreEqual(101, records[0].GetField("Card_ID"));

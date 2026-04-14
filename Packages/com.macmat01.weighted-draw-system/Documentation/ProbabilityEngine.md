@@ -20,6 +20,7 @@ Core class that filters and selects items.
 
 - `GetValidChoices(TState state)` returns options whose conditions pass
 - `EvaluateRandom(TState state)` returns one weighted random valid item, or `null`
+- overload supports `IRandomValueProvider` injection for deterministic tests/custom RNG
 
 ### `ProbabilityItem<TState, TValue>`
 
@@ -118,6 +119,7 @@ if (picked != null)
 - Negative weights are treated as zero.
 - If all valid weights are zero, selection falls back to uniform random across valid options.
 - Multiple conditions on one item use AND logic (all must pass).
+- When using imported conditions, runtime comparison and connector semantics are shared with `SchemaImporter` through `ConditionSemantics`.
 
 ## Using Imported Data (`RandomiserSystem`)
 

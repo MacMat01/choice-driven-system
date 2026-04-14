@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Text.RegularExpressions;
 namespace SchemaImporter.Parsers
 {
@@ -14,16 +13,6 @@ namespace SchemaImporter.Parsers
     public static class ConditionParserUtility
     {
         private static readonly Regex ConnectorRegex = new Regex(@"&&|\|\||\band\b|\bor\b|&|\||;", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
-        private static readonly string[] SupportedOperators =
-        {
-            "==",
-            "!=",
-            ">=",
-            "<=",
-            ">",
-            "<"
-        };
 
         /// <summary>
         ///     Parses a condition string into a list of ParsedCondition objects.
@@ -51,7 +40,7 @@ namespace SchemaImporter.Parsers
                 TryParseAndAdd(conditions, segment, pendingConnector, pendingRawConnector);
 
                 pendingRawConnector = connectorMatch.Value.Trim();
-                pendingConnector = NormalizeConnector(pendingRawConnector);
+                pendingConnector = ConditionSemantics.NormalizeConnector(pendingRawConnector);
                 segmentStart = connectorMatch.Index + connectorMatch.Length;
             }
 
@@ -78,19 +67,9 @@ namespace SchemaImporter.Parsers
             }
 
             // Try to parse as an operator-based condition (e.g., "army>40").
-            foreach (string op in SupportedOperators)
+            if (ConditionSemantics.TryParseOperatorCondition(conditionPart, out string varName, out string op, out float value))
             {
-                int opIndex = conditionPart.IndexOf(op, StringComparison.Ordinal);
-                if (opIndex > 0)
-                {
-                    string varName = conditionPart[..opIndex].Trim();
-                    string valueStr = conditionPart[(opIndex + op.Length)..].Trim();
-
-                    if (!string.IsNullOrEmpty(varName) && float.TryParse(valueStr, NumberStyles.Float, CultureInfo.InvariantCulture, out float value))
-                    {
-                        return new ParsedCondition(varName, op, value);
-                    }
-                }
+                return new ParsedCondition(varName, op, value);
             }
 
             return null;
@@ -118,21 +97,6 @@ namespace SchemaImporter.Parsers
             conditions.Add(condition);
         }
 
-        private static string NormalizeConnector(string rawConnector)
-        {
-            if (string.IsNullOrWhiteSpace(rawConnector))
-            {
-                return null;
-            }
-
-            string token = rawConnector.Trim().ToLowerInvariant();
-            return token switch
-            {
-                "&&" or "&" or "and" or ";" => "AND",
-                "||" or "|" or "or" => "OR",
-                _ => null
-            };
-        }
 
         private static bool TryParseAsLiteralBoolean(string conditionPart, out ParsedCondition booleanConstant)
         {

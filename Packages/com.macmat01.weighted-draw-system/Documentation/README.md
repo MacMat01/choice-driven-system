@@ -7,6 +7,8 @@ It combines:
 - `ProbabilityEngine`: weighted random selection with condition filtering
 - `SchemaImporter`: schema-based import of CSV and JSON into typed records
 
+Shared condition semantics are centralized in `ConditionSemantics` so importer and runtime evaluation stay aligned.
+
 ## When To Use It
 
 Use this package when you need to:
@@ -21,6 +23,8 @@ Common scenarios: loot tables, procedural events, branching narrative choices, a
 
 - `Runtime/ProbabilityEngine`
 - `Runtime/SchemaImporter`
+
+Built-in format routing is handled by internal extension adapters that dispatch to `CsvDataParser` and `JsonDataParser`.
 
 ## Basic Example
 

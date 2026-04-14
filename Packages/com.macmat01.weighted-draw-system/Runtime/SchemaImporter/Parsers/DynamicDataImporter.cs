@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using SchemaImporter.Schema;
 using UnityEngine;
 namespace SchemaImporter.Parsers
@@ -10,8 +11,26 @@ namespace SchemaImporter.Parsers
     /// </summary>
     public static class DynamicDataImporter
     {
-        private static readonly SchemaDrivenCsvParser CsvParser = new SchemaDrivenCsvParser();
-        private static readonly SchemaDrivenJsonParser JsonParser = new SchemaDrivenJsonParser();
+        private static readonly List<ISchemaDataParser> Parsers = new List<ISchemaDataParser>
+        {
+            new ExtensionSchemaDataParser(".csv", static (rawText, schema) => new CsvDataParser().Parse(rawText, schema)),
+            new ExtensionSchemaDataParser(".json", static (rawText, schema) => JsonDataParser.Parse(rawText, schema))
+        };
+
+        public static void RegisterParser(ISchemaDataParser parser)
+        {
+            if (parser == null)
+            {
+                throw new ArgumentNullException(nameof(parser));
+            }
+
+            if (Parsers.Contains(parser))
+            {
+                return;
+            }
+
+            Parsers.Insert(0, parser);
+        }
 
         private static List<DataRecord> ImportRaw(string rawText, string extension, DataSchemaSO schema)
         {
@@ -50,6 +69,50 @@ namespace SchemaImporter.Parsers
             return ImportRaw(sourceFile.text, extension, schema);
         }
 
+        /// <summary>
+        ///     Imports data using the provided TextAsset source and schema.
+        /// </summary>
+        public static List<DataRecord> ImportFromTextAsset(TextAsset sourceFile, DataSchemaSO schema)
+        {
+            if (sourceFile == null)
+            {
+                throw new ArgumentNullException(nameof(sourceFile), "DynamicDataImporter: A source TextAsset is required.");
+            }
+
+            if (schema == null)
+            {
+                throw new ArgumentNullException(nameof(schema), "DynamicDataImporter: A DataSchemaSO is required.");
+            }
+
+            string extension = Path.GetExtension(sourceFile.name);
+            return ImportRaw(sourceFile.text, extension, schema);
+        }
+
+        /// <summary>
+        ///     Imports data from an explicit file path and schema.
+        /// </summary>
+        public static List<DataRecord> ImportFromFilePath(string filePath, DataSchemaSO schema)
+        {
+            if (string.IsNullOrWhiteSpace(filePath))
+            {
+                throw new ArgumentException("DynamicDataImporter: A valid file path is required.", nameof(filePath));
+            }
+
+            if (schema == null)
+            {
+                throw new ArgumentNullException(nameof(schema), "DynamicDataImporter: A DataSchemaSO is required.");
+            }
+
+            if (!File.Exists(filePath))
+            {
+                throw new FileNotFoundException("DynamicDataImporter: Source data file was not found.", filePath);
+            }
+
+            string rawText = File.ReadAllText(filePath);
+            string extension = Path.GetExtension(filePath);
+            return ImportRaw(rawText, extension, schema);
+        }
+
         private static string NormalizeExtension(string extension, string rawText)
         {
             if (!string.IsNullOrWhiteSpace(extension))
@@ -69,19 +132,14 @@ namespace SchemaImporter.Parsers
         private static bool TryParseByExtension(string rawText, DataSchemaSO schema, string normalizedExtension, out List<DataRecord> records)
         {
             records = null;
-            if (string.Equals(normalizedExtension, ".csv", StringComparison.OrdinalIgnoreCase))
+            ISchemaDataParser parser = Parsers.FirstOrDefault(candidate => candidate.CanParse(normalizedExtension));
+            if (parser == null)
             {
-                records = CsvParser.Parse(rawText, schema);
-                return true;
+                return false;
             }
 
-            if (string.Equals(normalizedExtension, ".json", StringComparison.OrdinalIgnoreCase))
-            {
-                records = SchemaDrivenJsonParser.Parse(rawText, schema);
-                return true;
-            }
-
-            return false;
+            records = parser.Parse(rawText, schema);
+            return true;
         }
     }
 }

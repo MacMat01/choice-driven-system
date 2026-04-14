@@ -9,7 +9,7 @@ namespace SchemaImporter.Parsers
     ///     Schema-driven JSON parser that reads JSON objects according to a DataSchemaSO definition.
     ///     Supports either a single object root or an array of objects.
     /// </summary>
-    public sealed class SchemaDrivenJsonParser
+    public sealed class JsonDataParser
     {
         public static List<DataRecord> Parse(string rawJson, DataSchemaSO schema)
         {
@@ -49,7 +49,7 @@ namespace SchemaImporter.Parsers
                 return true;
             }
 
-            Debug.LogWarning("SchemaDrivenJsonParser: JSON must start with '{' or '['.");
+            Debug.LogWarning("JsonDataParser: JSON must start with '{' or '['.");
             return false;
         }
 
@@ -70,7 +70,7 @@ namespace SchemaImporter.Parsers
 
             if (hasRequiredFieldErrors)
             {
-                Debug.LogWarning($"SchemaDrivenJsonParser: Skipping item {itemNumber} due to missing required fields.");
+                Debug.LogWarning($"JsonDataParser: Skipping item {itemNumber} due to missing required fields.");
                 return false;
             }
 
@@ -89,7 +89,7 @@ namespace SchemaImporter.Parsers
             {
                 if (column.IsRequired)
                 {
-                    Debug.LogError($"SchemaDrivenJsonParser: Required field '{column.ColumnName}' not found at item {itemNumber}.");
+                    Debug.LogError($"JsonDataParser: Required field '{column.ColumnName}' not found at item {itemNumber}.");
                     return false;
                 }
 
@@ -98,7 +98,7 @@ namespace SchemaImporter.Parsers
 
             if (column.IsRequired && string.IsNullOrWhiteSpace(rawValue))
             {
-                Debug.LogError($"SchemaDrivenJsonParser: Required field '{column.ColumnName}' is empty at item {itemNumber}.");
+                Debug.LogError($"JsonDataParser: Required field '{column.ColumnName}' is empty at item {itemNumber}.");
                 return false;
             }
 

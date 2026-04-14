@@ -8,26 +8,31 @@ namespace SchemaImporter.Schema
     /// </summary>
     public class DataRecord
     {
-        private Dictionary<string, object> Fields
-        {
-            get;
-        } = new Dictionary<string, object>();
+        private readonly Dictionary<string, object> fields = new Dictionary<string, object>(System.StringComparer.OrdinalIgnoreCase);
+
+        public IReadOnlyDictionary<string, object> Fields => fields;
 
         public void SetField(string columnName, object value)
         {
-            Fields[columnName] = value;
+            fields[columnName] = value;
         }
 
         public object GetField(string columnName)
         {
-            return Fields.GetValueOrDefault(columnName);
+            return fields.GetValueOrDefault(columnName);
+
+        }
+
+        public bool TryGetField(string columnName, out object value)
+        {
+            return fields.TryGetValue(columnName, out value);
 
         }
 
         public override string ToString()
         {
             List<string> parts = new List<string>();
-            foreach (KeyValuePair<string, object> kvp in Fields)
+            foreach (KeyValuePair<string, object> kvp in fields)
             {
                 parts.Add($"{kvp.Key}={kvp.Value}");
             }

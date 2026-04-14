@@ -7,7 +7,7 @@ using UnityEngine.TestTools;
 using Debug = System.Diagnostics.Debug;
 namespace Tests.EditMode.SchemaImporter
 {
-    public class SchemaDrivenCsvParserTests
+    public class CsvDataParserTests
     {
         private static DataSchemaSO CreateItemSchema()
         {
@@ -32,8 +32,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_cursed_001,Cursed Blade,Legendary,0,0.5,false,FALSE";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(3, records.Count);
 
@@ -65,8 +65,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_003,Potion,Common,50,0.0,true,\"health!=100\"";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(3, records.Count);
 
@@ -100,8 +100,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_003,Weapon C,Rare,400,0.3,true,\"TRUE&&power>50||FALSE\"";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(3, records.Count);
 
@@ -141,8 +141,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_003,Mixed Logic,Rare,200,0.15,true,\"TRUE&&power>20||FALSE\"";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(3, records.Count);
 
@@ -181,8 +181,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_003,Normal Item,Common,200,0.0,true,\"level>=1\"";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(3, records.Count);
 
@@ -210,8 +210,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_002,\"Shield, Knight's, Special\",Rare,500,0.0,true,\"armor>50&&strength>30\"";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(2, records.Count);
             Assert.AreEqual("Sword, Legendary Edition", records[0].GetField("ItemName"));
@@ -228,8 +228,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_004,Item D,Common,250,0.0,0,\"TRUE\"";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(4, records.Count);
             Assert.AreEqual(true, records[0].GetField("IsEnabled"));
@@ -247,8 +247,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_003,Float Item,Rare,300,0.000001,true,\"level>=1\"";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(3, records.Count);
             Assert.That((float)records[0].GetField("CritChance"), Is.EqualTo(0.333333f).Within(0.0001f));
@@ -265,8 +265,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_003,Bad Bool,Common,200,0.3,notABool,\"level>=1\"";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(3, records.Count);
 
@@ -287,8 +287,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_001,Sword,ShouldBeIgnored,100,0.1,true,\"power>10\"";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(1, records.Count);
             Assert.AreEqual("item_001", records[0].GetField("ItemID"));
@@ -303,8 +303,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_002,Shield,150";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(2, records.Count);
             Assert.AreEqual("item_001", records[0].GetField("ItemID"));
@@ -319,8 +319,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_001,\"Sword\nWith\nDescription\",Common,100,0.1,true,\"power>5\"";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(1, records.Count);
             Assert.AreEqual("Sword\nWith\nDescription", records[0].GetField("ItemName"));
@@ -333,8 +333,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_001,\"Sword \"\"Legendary\"\"\",Common,100,0.1,true,\"power>5\"";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(1, records.Count);
             Assert.AreEqual("Sword \"Legendary\"", records[0].GetField("ItemName"));
@@ -352,8 +352,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_003,Potion,Common,50,0.0,true,TRUE";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(3, records.Count);
             Assert.AreEqual("item_001", records[0].GetField("ItemID"));
@@ -370,8 +370,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_003,Potion,Common,50,0.0,true,TRUE\r\n";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(3, records.Count);
             Assert.AreEqual("item_001", records[0].GetField("ItemID"));
@@ -387,8 +387,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_002,Shield,Common,150,0.0,false,\"level>=1&&&&power>20\"";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(2, records.Count);
 
@@ -418,8 +418,8 @@ namespace Tests.EditMode.SchemaImporter
                 "item_005,Item E,Common,100,0.0,true,\"power>5;armor>10\"";
 
             DataSchemaSO schema = CreateItemSchema();
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             Assert.AreEqual(5, records.Count);
 
@@ -441,8 +441,8 @@ namespace Tests.EditMode.SchemaImporter
 
             DataSchemaSO schema = CreateItemSchema();
             // All columns are optional by default (IsRequired = false)
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             // All rows should be accepted since columns are optional
             Assert.AreEqual(3, records.Count);
@@ -468,13 +468,13 @@ namespace Tests.EditMode.SchemaImporter
             schema.Columns.Add(new ColumnDefinition("IsEnabled", ColumnDataType.Bool));
             schema.Columns.Add(new ColumnDefinition("SpawnRequirements", ColumnDataType.ConditionList));
 
-            LogAssert.Expect(LogType.Error, "SchemaDrivenCsvParser: Required column 'ItemID' is empty at row 3.");
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenCsvParser: Skipping row 3 due to missing required fields.");
-            LogAssert.Expect(LogType.Error, "SchemaDrivenCsvParser: Required column 'ItemName' is empty at row 4.");
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenCsvParser: Skipping row 4 due to missing required fields.");
+            LogAssert.Expect(LogType.Error, "CsvDataParser: Required column 'ItemID' is empty at row 3.");
+            LogAssert.Expect(LogType.Warning, "CsvDataParser: Skipping row 3 due to missing required fields.");
+            LogAssert.Expect(LogType.Error, "CsvDataParser: Required column 'ItemName' is empty at row 4.");
+            LogAssert.Expect(LogType.Warning, "CsvDataParser: Skipping row 4 due to missing required fields.");
 
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             // Only the first row should be accepted (rows 2 and 3 have empty required fields)
             Assert.AreEqual(1, records.Count);
@@ -498,11 +498,11 @@ namespace Tests.EditMode.SchemaImporter
             schema.Columns.Add(new ColumnDefinition("IsEnabled", ColumnDataType.Bool));
             schema.Columns.Add(new ColumnDefinition("SpawnRequirements", ColumnDataType.ConditionList, true));
 
-            LogAssert.Expect(LogType.Error, "SchemaDrivenCsvParser: Required column 'SpawnRequirements' is empty at row 3.");
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenCsvParser: Skipping row 3 due to missing required fields.");
+            LogAssert.Expect(LogType.Error, "CsvDataParser: Required column 'SpawnRequirements' is empty at row 3.");
+            LogAssert.Expect(LogType.Warning, "CsvDataParser: Skipping row 3 due to missing required fields.");
 
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             // Only rows 1 and 3 should be accepted (row 2 has empty required SpawnRequirements)
             Assert.AreEqual(2, records.Count);
@@ -527,13 +527,13 @@ namespace Tests.EditMode.SchemaImporter
             schema.Columns.Add(new ColumnDefinition("IsEnabled", ColumnDataType.Bool, true));
             schema.Columns.Add(new ColumnDefinition("SpawnRequirements", ColumnDataType.ConditionList));
 
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenCsvParser: Failed to parse 'CritChance' as Float at row 2. Value: ''. Defaulting to 0.");
-            LogAssert.Expect(LogType.Error, "SchemaDrivenCsvParser: Required column 'Price' is empty at row 3.");
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenCsvParser: Skipping row 3 due to missing required fields.");
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenCsvParser: Failed to parse 'CritChance' as Float at row 4. Value: ''. Defaulting to 0.");
+            LogAssert.Expect(LogType.Warning, "CsvDataParser: Failed to parse 'CritChance' as Float at row 2. Value: ''. Defaulting to 0.");
+            LogAssert.Expect(LogType.Error, "CsvDataParser: Required column 'Price' is empty at row 3.");
+            LogAssert.Expect(LogType.Warning, "CsvDataParser: Skipping row 3 due to missing required fields.");
+            LogAssert.Expect(LogType.Warning, "CsvDataParser: Failed to parse 'CritChance' as Float at row 4. Value: ''. Defaulting to 0.");
 
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             // Only row 3 should be accepted
             // Row 1: missing required Price
@@ -562,13 +562,13 @@ namespace Tests.EditMode.SchemaImporter
             schema.Columns.Add(new ColumnDefinition("IsEnabled", ColumnDataType.Bool));
             schema.Columns.Add(new ColumnDefinition("SpawnRequirements", ColumnDataType.ConditionList, true));
 
-            LogAssert.Expect(LogType.Error, "SchemaDrivenCsvParser: Required column 'ItemName' is empty at row 2.");
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenCsvParser: Skipping row 2 due to missing required fields.");
-            LogAssert.Expect(LogType.Error, "SchemaDrivenCsvParser: Required column 'SpawnRequirements' is empty at row 3.");
-            LogAssert.Expect(LogType.Warning, "SchemaDrivenCsvParser: Skipping row 3 due to missing required fields.");
+            LogAssert.Expect(LogType.Error, "CsvDataParser: Required column 'ItemName' is empty at row 2.");
+            LogAssert.Expect(LogType.Warning, "CsvDataParser: Skipping row 2 due to missing required fields.");
+            LogAssert.Expect(LogType.Error, "CsvDataParser: Required column 'SpawnRequirements' is empty at row 3.");
+            LogAssert.Expect(LogType.Warning, "CsvDataParser: Skipping row 3 due to missing required fields.");
 
-            SchemaDrivenCsvParser parser = new SchemaDrivenCsvParser();
-            List<DataRecord> records = parser.Parse(csv, schema);
+            CsvDataParser dataParser = new CsvDataParser();
+            List<DataRecord> records = dataParser.Parse(csv, schema);
 
             // Both rows fail: row 1 has whitespace ItemName (fails required check), row 2 has whitespace SpawnRequirements (fails required check)
             Assert.AreEqual(0, records.Count);

@@ -1,18 +1,26 @@
 ﻿using System.Collections.Generic;
-using UnityEngine;
+using System.Linq;
+using ProbabilityEngine.Interfaces;
 namespace ProbabilityEngine.Utils
 {
     public static class WeightedRandom
     {
         public static int PickIndex(List<float> weights)
         {
-            float total = 0f;
-            foreach (float w in weights)
+            return PickIndex((IReadOnlyList<float>)weights, null);
+        }
+
+        public static int PickIndex(IReadOnlyList<float> weights, IRandomValueProvider randomValueProvider = null)
+        {
+            if (weights == null || weights.Count == 0)
             {
-                total += w;
+                return -1;
             }
 
-            float r = Random.value * total;
+            IRandomValueProvider randomProvider = randomValueProvider ?? UnityRandomValueProvider.Shared;
+            float total = weights.Sum();
+
+            float r = randomProvider.NextFloat01() * total;
 
             for (int i = 0; i < weights.Count; i++)
             {

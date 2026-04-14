@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Collections.Generic;
 using System.Linq;
 using ProbabilityEngine.Interfaces;
 using SchemaImporter.Parsers;
 using SchemaImporter.Schema;
-using UnityEngine;
 namespace ProbabilityEngine.Core
 {
     /// <summary>
@@ -20,16 +17,27 @@ namespace ProbabilityEngine.Core
         private RandomiserSystem(
             IEnumerable<DataRecord> items,
             string conditionColumnName,
-            string weightColumnName = null)
+            string weightColumnName = null,
+            IRandomValueProvider randomValueProvider = null)
         {
             this.conditionColumnName = conditionColumnName;
             this.weightColumnName = weightColumnName;
-            probabilityEngine = new ProbabilityEngine<DictionaryGameState, DataRecord>(CreateProbabilityItems(items));
+            probabilityEngine = new ProbabilityEngine<DictionaryGameState, DataRecord>(CreateProbabilityItems(items), randomValueProvider);
         }
 
         public RandomiserSystem(
             IEnumerable<DataRecord> items,
             DataSchemaSO schema,
+            string conditionColumnName = null,
+            string weightColumnName = null)
+            : this(items, schema, null, conditionColumnName, weightColumnName)
+        {
+        }
+
+        public RandomiserSystem(
+            IEnumerable<DataRecord> items,
+            DataSchemaSO schema,
+            IRandomValueProvider randomValueProvider,
             string conditionColumnName = null,
             string weightColumnName = null)
             : this(
@@ -39,7 +47,8 @@ namespace ProbabilityEngine.Core
                     : conditionColumnName,
                 string.IsNullOrWhiteSpace(weightColumnName)
                     ? ResolveColumnByType(schema, ColumnDataType.WeightColumn)
-                    : weightColumnName)
+                    : weightColumnName,
+                randomValueProvider)
         {
         }
 
@@ -81,12 +90,32 @@ namespace ProbabilityEngine.Core
 
                 yield return new ProbabilityItem<DictionaryGameState, DataRecord>
                 {
-                    Id = item.GetField("Card_ID")?.ToString(),
+                    Id = ResolveRecordId(item),
                     Value = item,
                     BaseWeight = ResolveWeight(item),
                     Conditions = BuildConditions(item)
                 };
             }
+        }
+
+        private static string ResolveRecordId(DataRecord item)
+        {
+            if (item == null)
+            {
+                return null;
+            }
+
+            if (item.TryGetField("Card_ID", out object cardId) && cardId != null)
+            {
+                return cardId.ToString();
+            }
+
+            if (item.TryGetField("Id", out object idValue) && idValue != null)
+            {
+                return idValue.ToString();
+            }
+
+            return null;
         }
 
         private float ResolveWeight(DataRecord item)
@@ -97,7 +126,7 @@ namespace ProbabilityEngine.Core
             }
 
             object rawWeight = item.GetField(weightColumnName);
-            if (TryConvertToFloat(rawWeight, out float parsedWeight) && parsedWeight > 0f)
+            if (ConditionSemantics.TryConvertToFloat(rawWeight, out float parsedWeight) && parsedWeight > 0f)
             {
                 return parsedWeight;
             }
@@ -135,106 +164,6 @@ namespace ProbabilityEngine.Core
             {
                 new ParsedConditionChainCondition(parsedConditions)
             };
-        }
-
-        private static bool EvaluateCondition(ParsedCondition condition, IReadOnlyDictionary<string, object> gameStateContext)
-        {
-            if (condition == null)
-            {
-                return false;
-            }
-
-            if (condition.IsBooleanLiteral)
-            {
-                return condition.BooleanLiteralValue;
-            }
-
-            if (!TryResolveContextValue(gameStateContext, condition.VariableName, out float leftValue))
-            {
-                return false;
-            }
-
-            float rightValue = condition.Value;
-            return condition.Operator switch
-            {
-                "==" => Mathf.Approximately(leftValue, rightValue),
-                "!=" => !Mathf.Approximately(leftValue, rightValue),
-                ">" => leftValue > rightValue,
-                "<" => leftValue < rightValue,
-                ">=" => leftValue >= rightValue,
-                "<=" => leftValue <= rightValue,
-                _ => false
-            };
-        }
-
-        private static bool TryResolveContextValue(IReadOnlyDictionary<string, object> gameStateContext, string variableName, out float value)
-        {
-            value = 0f;
-            if (string.IsNullOrWhiteSpace(variableName) || gameStateContext == null || gameStateContext.Count == 0)
-            {
-                return false;
-            }
-
-            foreach (KeyValuePair<string, object> pair in gameStateContext)
-            {
-                if (!string.Equals(pair.Key, variableName, StringComparison.OrdinalIgnoreCase))
-                {
-                    continue;
-                }
-
-                return TryConvertToFloat(pair.Value, out value);
-            }
-
-            return false;
-        }
-
-        private static bool TryConvertToFloat(object rawValue, out float value)
-        {
-            value = 0f;
-            switch (rawValue)
-            {
-                case null:
-                    return false;
-                case float floatValue:
-                    value = floatValue;
-                    return true;
-                case double doubleValue:
-                    value = (float)doubleValue;
-                    return true;
-                case int intValue:
-                    value = intValue;
-                    return true;
-                case long longValue:
-                    value = longValue;
-                    return true;
-                case bool boolValue:
-                    value = boolValue ? 1f : 0f;
-                    return true;
-                case string stringValue:
-                    if (float.TryParse(stringValue, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out float parsedStringFloat))
-                    {
-                        value = parsedStringFloat;
-                        return true;
-                    }
-
-                    if (bool.TryParse(stringValue, out bool parsedStringBool))
-                    {
-                        value = parsedStringBool ? 1f : 0f;
-                        return true;
-                    }
-
-                    return false;
-                default:
-                    try
-                    {
-                        value = Convert.ToSingle(rawValue, CultureInfo.InvariantCulture);
-                        return true;
-                    }
-                    catch
-                    {
-                        return false;
-                    }
-            }
         }
 
         private static string ResolveColumnByType(DataSchemaSO schema, ColumnDataType type)
@@ -284,27 +213,7 @@ namespace ProbabilityEngine.Core
 
             public bool Evaluate(DictionaryGameState state)
             {
-                if (conditions == null || conditions.Count == 0)
-                {
-                    return true;
-                }
-
-                bool aggregate = EvaluateCondition(conditions[0], state?.Values);
-                for (int i = 1; i < conditions.Count; i++)
-                {
-                    ParsedCondition condition = conditions[i];
-                    bool current = EvaluateCondition(condition, state?.Values);
-                    if (string.Equals(condition.ConnectorFromPrevious, "OR", StringComparison.OrdinalIgnoreCase))
-                    {
-                        aggregate = aggregate || current;
-                    }
-                    else
-                    {
-                        aggregate = aggregate && current;
-                    }
-                }
-
-                return aggregate;
+                return ParsedConditionEvaluator.EvaluateChain(conditions, state?.Values);
             }
         }
     }

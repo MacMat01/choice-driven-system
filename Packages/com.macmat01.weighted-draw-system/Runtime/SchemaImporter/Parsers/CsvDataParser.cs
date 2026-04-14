@@ -9,7 +9,7 @@ namespace SchemaImporter.Parsers
     ///     Schema-driven CSV parser that reads CSV data according to a DataSchemaSO definition.
     ///     Returns a list of DataRecord objects with dynamically typed fields.
     /// </summary>
-    public sealed class SchemaDrivenCsvParser
+    public sealed class CsvDataParser
     {
         public List<DataRecord> Parse(string rawCsv, DataSchemaSO schema)
         {
@@ -85,7 +85,7 @@ namespace SchemaImporter.Parsers
 
             if (rowHasRequiredFieldErrors)
             {
-                Debug.LogWarning($"SchemaDrivenCsvParser: Skipping row {rowNumber} due to missing required fields.");
+                Debug.LogWarning($"CsvDataParser: Skipping row {rowNumber} due to missing required fields.");
                 return false;
             }
 
@@ -110,12 +110,12 @@ namespace SchemaImporter.Parsers
             {
                 if (missingSchemaColumns.Add(columnDef.ColumnName))
                 {
-                    Debug.LogWarning($"SchemaDrivenCsvParser: Column '{columnDef.ColumnName}' from schema not found in CSV headers. It will be skipped.");
+                    Debug.LogWarning($"CsvDataParser: Column '{columnDef.ColumnName}' from schema not found in CSV headers. It will be skipped.");
                 }
 
                 if (columnDef.IsRequired)
                 {
-                    Debug.LogError($"SchemaDrivenCsvParser: Required column '{columnDef.ColumnName}' not found in CSV at row {rowNumber}.");
+                    Debug.LogError($"CsvDataParser: Required column '{columnDef.ColumnName}' not found in CSV at row {rowNumber}.");
                     return false;
                 }
 
@@ -126,7 +126,7 @@ namespace SchemaImporter.Parsers
             {
                 if (columnDef.IsRequired)
                 {
-                    Debug.LogError($"SchemaDrivenCsvParser: Required column '{columnDef.ColumnName}' is empty at row {rowNumber}.");
+                    Debug.LogError($"CsvDataParser: Required column '{columnDef.ColumnName}' is empty at row {rowNumber}.");
                     return false;
                 }
 
@@ -136,7 +136,7 @@ namespace SchemaImporter.Parsers
             string cellValue = values[columnIndex];
             if (columnDef.IsRequired && string.IsNullOrWhiteSpace(cellValue))
             {
-                Debug.LogError($"SchemaDrivenCsvParser: Required column '{columnDef.ColumnName}' is empty at row {rowNumber}.");
+                Debug.LogError($"CsvDataParser: Required column '{columnDef.ColumnName}' is empty at row {rowNumber}.");
                 return false;
             }
 

@@ -2,7 +2,6 @@
 using System.Linq;
 using ProbabilityEngine.Interfaces;
 using ProbabilityEngine.Utils;
-using Random = UnityEngine.Random;
 namespace ProbabilityEngine.Core
 {
     /// <summary>
@@ -13,10 +12,12 @@ namespace ProbabilityEngine.Core
         where TState : IGameState
     {
         private readonly List<ProbabilityItem<TState, TValue>> items;
+        private readonly IRandomValueProvider randomValueProvider;
 
-        public ProbabilityEngine(IEnumerable<ProbabilityItem<TState, TValue>> items)
+        public ProbabilityEngine(IEnumerable<ProbabilityItem<TState, TValue>> items, IRandomValueProvider randomValueProvider = null)
         {
             this.items = items != null ? items.ToList() : new List<ProbabilityItem<TState, TValue>>();
+            this.randomValueProvider = randomValueProvider ?? UnityRandomValueProvider.Shared;
         }
 
         /// <summary>
@@ -41,12 +42,12 @@ namespace ProbabilityEngine.Core
             float totalWeight = weights.Sum();
             if (totalWeight <= 0f)
             {
-                int uniformIndex = Random.Range(0, validItems.Count);
+                int uniformIndex = randomValueProvider.NextInt(0, validItems.Count);
                 return validItems[uniformIndex];
             }
 
             // Select an item based on weighted randomness.
-            int index = WeightedRandom.PickIndex(weights);
+            int index = WeightedRandom.PickIndex(weights, randomValueProvider);
             ProbabilityItem<TState, TValue> selectedItem = validItems[index];
 
             // Return the selected ProbabilityItem (option effects are not applied here).

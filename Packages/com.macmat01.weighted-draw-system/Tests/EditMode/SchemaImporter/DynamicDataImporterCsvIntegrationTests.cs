@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.IO;
 using NUnit.Framework;
 using SchemaImporter.Parsers;
 using SchemaImporter.Schema;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.TestTools;
 namespace Tests.EditMode.SchemaImporter
 {
@@ -214,6 +216,59 @@ namespace Tests.EditMode.SchemaImporter
             LogAssert.NoUnexpectedReceived();
         }
 
+        [Test]
+        public void ImportFromTextAsset_ParsesCsvExample1_AllRowsAndFields()
+        {
+            DataSchemaSO schema = AssetDatabase.LoadAssetAtPath<DataSchemaSO>(csvAssetPath);
+            Assert.IsNotNull(schema, $"Missing schema asset at '{csvAssetPath}'.");
+            Assert.IsTrue(schema.HasSourceDataFile(), "Schema is expected to have a source TextAsset assigned.");
+
+            List<DataRecord> records = DynamicDataImporter.ImportFromTextAsset(schema.SourceDataFile, schema);
+
+            Assert.AreEqual(7, records.Count);
+            Assert.AreEqual(101, records[0].GetField("Card_ID"));
+        }
+
+        [Test]
+        public void ImportFromFilePath_ParsesCsvExample1_AllRowsAndFields()
+        {
+            DataSchemaSO schema = AssetDatabase.LoadAssetAtPath<DataSchemaSO>(csvAssetPath);
+            Assert.IsNotNull(schema, $"Missing schema asset at '{csvAssetPath}'.");
+            Assert.IsTrue(schema.HasSourceDataFile(), "Schema is expected to have a source TextAsset assigned.");
+
+            string relativePath = AssetDatabase.GetAssetPath(schema.SourceDataFile);
+            string absolutePath = Path.GetFullPath(Path.Combine(Application.dataPath, "..", relativePath));
+            List<DataRecord> records = DynamicDataImporter.ImportFromFilePath(absolutePath, schema);
+
+            Assert.AreEqual(7, records.Count);
+            Assert.AreEqual("party_invitation", records[0].GetField("Card_Name"));
+        }
+
+        [Test]
+        public void RegisterParser_AllowsCustomExtensionImport()
+        {
+            DynamicDataImporter.RegisterParser(new StubFooParser());
+
+            DataSchemaSO schema = ScriptableObject.CreateInstance<DataSchemaSO>();
+            string tempFilePath = Path.Combine(Path.GetTempPath(), $"weighted-draw-{System.Guid.NewGuid():N}.foo");
+
+            try
+            {
+                File.WriteAllText(tempFilePath, "irrelevant");
+                List<DataRecord> records = DynamicDataImporter.ImportFromFilePath(tempFilePath, schema);
+
+                Assert.AreEqual(1, records.Count);
+                Assert.AreEqual(999, records[0].GetField("Card_ID"));
+            }
+            finally
+            {
+                if (File.Exists(tempFilePath))
+                {
+                    File.Delete(tempFilePath);
+                }
+            }
+        }
+
         private static void AssertRecord(DataRecord record, ExpectedRow expected)
         {
             Assert.AreEqual(expected.CardId, record.GetField("Card_ID"));
@@ -281,6 +336,24 @@ namespace Tests.EditMode.SchemaImporter
             public int RightAttribute4 { get; set; }
             public int RightAttribute5 { get; set; }
             public string RightFollowUp { get; set; }
+        }
+
+        private sealed class StubFooParser : ISchemaDataParser
+        {
+            public bool CanParse(string normalizedExtension)
+            {
+                return string.Equals(normalizedExtension, ".foo", System.StringComparison.OrdinalIgnoreCase);
+            }
+
+            public List<DataRecord> Parse(string rawText, DataSchemaSO schema)
+            {
+                DataRecord record = new DataRecord();
+                record.SetField("Card_ID", 999);
+                return new List<DataRecord>
+                {
+                    record
+                };
+            }
         }
     }
 }

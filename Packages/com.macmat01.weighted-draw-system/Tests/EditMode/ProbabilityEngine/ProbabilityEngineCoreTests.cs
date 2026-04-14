@@ -119,6 +119,39 @@ namespace Tests.EditMode.ProbabilityEngine
             }
         }
 
+        [Test]
+        public void EvaluateRandom_UsesInjectedRandomProvider_ForDeterministicSelection()
+        {
+            TestState state = new TestState(0, true);
+            StubRandomValueProvider randomProvider = new StubRandomValueProvider(
+                new[]
+                {
+                    0.05f,
+                    0.95f
+                },
+                new[]
+                {
+                    0
+                });
+
+            ProbabilityEngine<TestState, string> weightedEngine = new ProbabilityEngine<TestState, string>(new[]
+            {
+                CreateItem("low", 1f, "low", null),
+                CreateItem("high", 9f, "high", null)
+            }, randomProvider);
+
+            Assert.AreEqual("low", weightedEngine.EvaluateRandom(state)?.Id);
+            Assert.AreEqual("high", weightedEngine.EvaluateRandom(state)?.Id);
+
+            ProbabilityEngine<TestState, string> uniformFallbackEngine = new ProbabilityEngine<TestState, string>(new[]
+            {
+                CreateItem("a", 0f, "a", null),
+                CreateItem("b", 0f, "b", null)
+            }, randomProvider);
+
+            Assert.AreEqual("a", uniformFallbackEngine.EvaluateRandom(state)?.Id);
+        }
+
         private static ProbabilityItem<TestState, string> CreateItem(string id, float weight, string value, Func<TestState, bool> condition)
         {
             return new ProbabilityItem<TestState, string>
@@ -159,6 +192,44 @@ namespace Tests.EditMode.ProbabilityEngine
             public bool Evaluate(TestState state)
             {
                 return predicate(state);
+            }
+        }
+
+        private sealed class StubRandomValueProvider : IRandomValueProvider
+        {
+            private readonly Queue<float> floats;
+            private readonly Queue<int> ints;
+
+            public StubRandomValueProvider(IEnumerable<float> floatValues, IEnumerable<int> intValues)
+            {
+                floats = new Queue<float>(floatValues ?? Array.Empty<float>());
+                ints = new Queue<int>(intValues ?? Array.Empty<int>());
+            }
+
+            public float NextFloat01()
+            {
+                return floats.Count > 0 ? floats.Dequeue() : 0f;
+            }
+
+            public int NextInt(int minInclusive, int maxExclusive)
+            {
+                if (ints.Count == 0)
+                {
+                    return minInclusive;
+                }
+
+                int candidate = ints.Dequeue();
+                if (candidate < minInclusive)
+                {
+                    return minInclusive;
+                }
+
+                if (candidate >= maxExclusive)
+                {
+                    return maxExclusive - 1;
+                }
+
+                return candidate;
             }
         }
     }

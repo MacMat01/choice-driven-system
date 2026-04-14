@@ -70,6 +70,10 @@ List<DataRecord> records = DynamicDataImporter.ImportFromSchema(schema);
 
 Primary entry point. Reads from `schema.SourceDataFile` and auto-detects CSV vs JSON.
 
+You can extend format support by registering custom parsers through `DynamicDataImporter.RegisterParser(...)`.
+
+The built-in routes are provided by the package's internal extension adapters and dispatch to `CsvDataParser` and `JsonDataParser`.
+
 ### `ImportFromTextAsset(TextAsset textAsset, DataSchemaSO schema)`
 
 Use when the source text asset is provided directly.
@@ -89,6 +93,11 @@ string id = record.GetField("ItemID")?.ToString();
 float weight = (float?)record.GetField("Weight") ?? 1f;
 List<ParsedCondition> conditions =
     record.GetField("Conditions") as List<ParsedCondition>;
+
+if (record.TryGetField("ItemID", out object rawId))
+{
+    Debug.Log(rawId);
+}
 ```
 
 ## Condition Syntax
@@ -99,6 +108,8 @@ List<ParsedCondition> conditions =
 - AND connectors: `&&`, `&`, `and`, `;`
 - OR connectors: `||`, `|`, `or`
 - shorthand: `flag` means `flag == 1`, `!flag` means `flag != 1`
+
+The connector and operator vocabulary is shared with runtime evaluation through `ConditionSemantics`.
 
 Examples:
 
@@ -116,6 +127,7 @@ Malformed segments are skipped where possible, and warnings are logged.
 - Required values that are empty, whitespace, or null make that row/item invalid.
 - Invalid numeric/bool conversions log warnings and use defaults (`0`, `0f`, `false`).
 - Empty condition strings convert to an empty condition list.
+- Explicit JSON `null` values remain `null` in the resulting `DataRecord`.
 
 ## JSON Nested Data
 

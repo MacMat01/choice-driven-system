@@ -7,6 +7,8 @@ It includes two reusable modules:
 - `ProbabilityEngine`: weighted selection with condition filtering
 - `SchemaImporter`: schema-based CSV and JSON import into typed records
 
+The importer and runtime now share condition semantics through `ConditionSemantics`, and built-in file routing uses internal adapters for `CsvDataParser` and `JsonDataParser`.
+
 This repository contains the full Unity project plus the package source at `Packages/com.macmat01.weighted-draw-system`.
 
 ## What This Package Is For

@@ -218,7 +218,7 @@ namespace _Old.Runtime.SchemaImporter.Parsers
                     inQuotes = !inQuotes;
                     continue;
                 }
-                
+
                 if (!inQuotes && c == ',')
                 {
                     values.Add(builder.ToString());

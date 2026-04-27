@@ -29,15 +29,8 @@ namespace Editor.Import
                 return;
             }
 
-            List<string> csvContents = new List<string>();
             IReadOnlyList<TextAsset> sourceFiles = authoring.SourceCsvFiles;
-            foreach (TextAsset source in sourceFiles)
-            {
-                if (source != null)
-                {
-                    csvContents.Add(source.text);
-                }
-            }
+            List<string> csvContents = (from source in sourceFiles where source != null select source.text).ToList();
 
             CsvRowCompiler<T> compiler = new CsvRowCompiler<T>(null, deserializer);
             List<T> rows = compiler.Compile(csvContents, authoring.Columns);
@@ -116,10 +109,7 @@ namespace Editor.Import
                 .GetAssemblies()
                 .SelectMany(SafeGetTypes)
                 .FirstOrDefault(type =>
-                    type != null &&
-                    type.IsClass &&
-                    !type.IsAbstract &&
-                    !type.IsGenericTypeDefinition &&
+                    type is { IsClass: true, IsAbstract: false, IsGenericTypeDefinition: false } &&
                     closedTableType.IsAssignableFrom(type));
         }
 

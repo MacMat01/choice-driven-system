@@ -1,99 +1,84 @@
 # Weighted Draw System
 
-Weighted Draw System is a Unity package that helps you build data-driven random choice systems.
+This repository contains a Unity project plus the package source at `Packages/com.macmat01.weighted-draw-system`.
 
-It includes two reusable modules:
+The package is a **game-agnostic**, **UPM-friendly** framework for:
 
-- `ProbabilityEngine`: weighted selection with condition filtering
-- `SchemaImporter`: schema-based CSV and JSON import into typed records
+- editor-time CSV compilation
+- generic row deserialization
+- weighted random selection
+- custom game-state condition evaluation
+- sample-driven usage instead of hardcoding one specific game schema
 
-The importer and runtime now share condition semantics through `ConditionSemantics`, and built-in file routing uses internal adapters for `CsvDataParser` and `JsonDataParser`.
+Some legacy code is preserved under `_Old` for migration support and is explicitly marked deprecated.
 
-This repository contains the full Unity project plus the package source at `Packages/com.macmat01.weighted-draw-system`.
+## Recommended package usage
 
-## What This Package Is For
+If you are using the package as a consumer, start with the package-level documentation:
 
-Use this package when you want to:
+- `Packages/com.macmat01.weighted-draw-system/README.md`
 
-- load gameplay tables from CSV or JSON
-- validate and convert imported data with a schema
-- evaluate conditional weighted choices at runtime
+That document explains:
 
-Typical use cases include loot tables, dialogue branching, encounter rolls, and event selection.
+- end-to-end flow from CSV file to runtime weighted draw
+- editor lifecycle (`OnValidate`, column sync, compile)
+- a practical tutorial for creating your own row type and authoring asset
+- runtime usage patterns with `WeightedDrawEngine<TEntry, TContext>`
+- migration differences between current APIs and deprecated `_Old` APIs
 
-## Install
+## Package layout
 
-### Unity Package Manager (Git URL)
+Current package areas:
 
-Because the `package.json` is inside a subfolder, use the Git URL with a `path` query:
+- `Packages/com.macmat01.weighted-draw-system/Runtime`
+- `Packages/com.macmat01.weighted-draw-system/Editor`
+- `Packages/com.macmat01.weighted-draw-system/Tests`
+- `Packages/com.macmat01.weighted-draw-system/_Old`
+
+## Example use case
+
+The package is meant for systems such as:
+
+- loot tables
+- dialogue/event cards
+- encounter tables
+- shop inventories
+- any other weighted CSV-driven system
+
+The event-card sample shows how to model your own schema while keeping the framework generic.
+
+## Installation
+
+### Unity Package Manager
+
+Use the package path URL:
 
 ```text
 https://github.com/MacMat01/weighted-draw-system.git?path=/Packages/com.macmat01.weighted-draw-system
 ```
 
-Optional: pin to a branch, tag, or commit with `#revision`:
+If you want a specific revision, append `#branch`, `#tag`, or `#commit`.
+
+### Local development
+
+Keep the package in this repository at:
 
 ```text
-https://github.com/MacMat01/weighted-draw-system.git?path=/Packages/com.macmat01.weighted-draw-system#main
+Packages/com.macmat01.weighted-draw-system
 ```
-
-### Add Through `manifest.json`
-
-```json
-{
-  "dependencies": {
-    "com.macmat01.weighted-draw-system": "https://github.com/MacMat01/weighted-draw-system.git?path=/Packages/com.macmat01.weighted-draw-system"
-  }
-}
-```
-
-### Local Development
-
-Keep the package in place at `Packages/com.macmat01.weighted-draw-system` inside this repository.
-
-## Package Structure
-
-- `Packages/com.macmat01.weighted-draw-system/package.json`
-- `Packages/com.macmat01.weighted-draw-system/Runtime/ProbabilityEngine`
-- `Packages/com.macmat01.weighted-draw-system/Runtime/SchemaImporter`
-- `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/ProbabilityEngine`
-- `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/SchemaImporter`
-- `Packages/com.macmat01.weighted-draw-system/Documentation`
-
-## Quick Workflow
-
-1. Define a `DataSchemaSO` for your data format.
-2. Import CSV or JSON rows with `DynamicDataImporter`.
-3. Convert imported records into weighted choices.
-4. Evaluate valid options with `ProbabilityEngine` or `RandomiserSystem`.
-
-```csharp
-List<DataRecord> records = DynamicDataImporter.ImportFromSchema(schema);
-
-var randomiser = new RandomiserSystem(records, schema);
-
-var context = new Dictionary<string, object>
-{
-    { "playerLevel", 10 },
-    { "hasWeapon", 1 }
-};
-
-DataRecord selected = randomiser.EvaluateRandom(context);
-```
-
-## Module Docs
-
-- `Packages/com.macmat01.weighted-draw-system/README.md`
-- `Packages/com.macmat01.weighted-draw-system/Documentation/ProbabilityEngine.md`
-- `Packages/com.macmat01.weighted-draw-system/Documentation/SchemaImporter.md`
 
 ## Testing
 
-Run Unity Edit Mode tests in:
+Edit Mode tests live under:
 
-- `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/ProbabilityEngine`
-- `Packages/com.macmat01.weighted-draw-system/Tests/EditMode/SchemaImporter`
+- `Packages/com.macmat01.weighted-draw-system/Tests/EditMode`
 
+They cover:
+
+- CSV parsing
+- weighted selection
+- condition evaluation
+- editor-time authoring and compilation
 
 ## License
 

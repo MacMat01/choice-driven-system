@@ -1,24 +1,22 @@
 ﻿{
   "name": "com.macmat01.weighted-draw-system",
-  "version": "1.0.5",
+  "version": "1.1.0",
   "displayName": "Weighted Draw System",
-  "description": "A Unity package providing a condition-aware weighted probability engine and a schema-driven CSV/JSON importer.",
-  "unity": "6000.4",
+  "description": "A game-agnostic CSV import + weighted draw framework for editor-time compilation and runtime selection.",
+  "unity": "6000.3",
   "author": {
-    "name": "MacMat01"
+    "name": "MacMat01, Tennents02, dianila68"
   },
-  "authors": [
-    "MacMat01",
-    "Tennents02",
-    "dianila68"
-  ],
   "keywords": [
     "probability",
     "weighted-random",
-    "importer",
     "csv",
-    "json",
+    "importer",
+    "draw",
+    "selection",
+    "framework",
     "unity"
   ],
-  "dependencies": {}
+  "dependencies": {},
+  "documentationUrl": "README.md"
 }

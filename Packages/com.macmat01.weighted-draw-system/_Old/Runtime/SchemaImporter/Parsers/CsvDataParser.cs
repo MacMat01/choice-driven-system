@@ -198,6 +198,7 @@ namespace _Old.Runtime.SchemaImporter.Parsers
 
         private static List<string> ParseRecord(string record)
         {
+            record = NormalizeRecord(record);
             List<string> values = new List<string>();
             bool inQuotes = false;
             StringBuilder builder = new StringBuilder();
@@ -217,11 +218,11 @@ namespace _Old.Runtime.SchemaImporter.Parsers
                     inQuotes = !inQuotes;
                     continue;
                 }
-
+                
                 if (!inQuotes && c == ',')
                 {
                     values.Add(builder.ToString());
-                    builder.Length = 0;
+                    builder.Clear();
                     continue;
                 }
 
@@ -230,6 +231,12 @@ namespace _Old.Runtime.SchemaImporter.Parsers
 
             values.Add(builder.ToString());
             return values;
+        }
+
+        private static string NormalizeRecord(string record)
+        {
+            record = record.Replace("\"\"", "\"");
+            return record.TrimStart('"');
         }
     }
 }

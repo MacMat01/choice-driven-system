@@ -13,7 +13,7 @@ namespace Authoring
         [field: SerializeField] public List<TextAsset> SourceCsvFiles { get; private set; } = new List<TextAsset>();
         [field: SerializeField] public List<CsvColumnDefinition> Columns { get; private set; } = new List<CsvColumnDefinition>();
         [field: SerializeField] public CompiledCsvTableSO<T> CompiledTable { get; set; }
-        [field: SerializeField] public bool AutoCompileInEditor { get; private set; } = true;
+        [field: SerializeField] public bool AutoCompileInEditor { get; private set; }
 
         [field: SerializeField]
         [field: HideInInspector]

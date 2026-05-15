@@ -1,6 +1,6 @@
 ﻿{
   "name": "com.macmat01.weighted-draw-system",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "displayName": "Weighted Draw System",
   "description": "A game-agnostic CSV import + weighted draw framework for editor-time compilation and runtime selection.",
   "unity": "6000.3",

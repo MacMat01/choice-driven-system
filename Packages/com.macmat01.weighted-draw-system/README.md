@@ -1,73 +1,88 @@
-﻿# Weighted Draw System
+﻿ # Weighted Draw System (com.macmat01.weighted-draw-system)
 
-`Weighted Draw System` is a Unity UPM package for building data-driven weighted selection systems from CSV files.
+This package provides a small, well-scoped toolset for authoring CSV-driven data tables in the Unity Editor
+and performing weighted random selection at runtime. It is intentionally split into a lightweight runtime
+surface (no editor dependencies) and an editor authoring/compile bridge.
 
-It is intentionally split into a generic runtime and editor authoring pipeline so you can:
+Goals:
+- Keep runtime usage strongly-typed and dependency-free from editor assemblies.
+- Let designers author content in CSVs and let the editor compile those CSVs into ScriptableObject assets.
+- Provide a deterministic-friendly weighted draw engine with pluggable eligibility and RNG.
 
-- keep gameplay code strongly typed
-- let designers maintain content in spreadsheet-style CSVs
-- compile CSV content to `ScriptableObject` assets in the editor
-- run weighted draws with your own eligibility rules and game context
+Contents overview
+- Runtime (Runtime/): CSV parser, authoring base types, condition evaluator, and the weighted draw engine.
+- Editor (Editor/): import bridge and `CsvImportService` which compiles CSV text into compiled ScriptableObjects.
+- Tests (Tests/EditMode/): unit tests that demonstrate parser, compiler and engine behaviors.
 
-## What is included
+Key components (short)
+- `Authoring.CsvDataSourceSO<T>`: base ScriptableObject for authoring CSV-backed tables (editor-only behavior via `OnValidate`).
+- `Authoring.IRowDeserializer<T>`: implement this in your project to map CSV rows (Dictionary<string,string>) to your typed row `T`.
+- `Authoring.CsvRowCompiler<T>`: runs the CSV parser and calls your `IRowDeserializer<T>` for every row, returning `List<T>`.
+- `Authoring.CompiledCsvTableSO<T>`: a ScriptableObject container that stores the compiled `List<T>` as a serializable asset.
+- `Csv.RobustCsvParser`: CSV tokenizer that supports quotes, escaped quotes, multiline cells and legacy wrapped-record recovery.
+- `Conditions.ConditionEvaluator` + `Conditions.IGameStateReader`: optional expression evaluator for enabling/guarding rows.
+- `WeightedDraw.WeightedDrawEngine<TEntry,TContext>`: picks an entry from an IEnumerable<TEntry> using eligibility + weights.
+- `WeightedDraw.IRandomValueProvider`: inject to make selection deterministic in tests.
 
-### Runtime (`Runtime/`)
+How the authoring/compile pipeline works (detailed)
+1) Create a concrete authoring ScriptableObject by inheriting `CsvDataSourceSO<T>` and implementing `GetDeserializer()` to
+   return your `IRowDeserializer<T>` implementation. Example below.
+2) Assign one or more `TextAsset` CSV sources to `SourceCsvFiles` on the authoring asset in the Editor.
+3) `CsvDataSourceSO<T>.OnValidate()` runs in the Editor and:
+   - computes a stable `SourceSignature` based on assigned `TextAsset` instance IDs,
+   - re-discovers headers from the first row (row 0) of every source and merges them into `Columns` (case-insensitive),
+   - optionally calls the editor import bridge to compile CSVs into a `CompiledCsvTableSO<T>` when `AutoCompileInEditor` is true.
+4) The runtime-to-editor bridge `Authoring.EditorImportBridge` uses reflection to locate the editor assembly type
+   `Editor.Import.CsvImportService` (assembly name `MacMat01.WeightedDrawSystem.Editor`) and calls its
+   `CompileGeneric<T>(CsvDataSourceSO<T>)` method. This keeps runtime code free of direct editor references.
+5) `Editor.Import.CsvImportService.CompileGeneric<T>` obtains your `IRowDeserializer<T>` via reflection, ensures a
+   `CompiledCsvTableSO<T>` exists (creates one or tries to find a concrete derived type in the domain assemblies),
+   compiles the CSV text sources with `CsvRowCompiler<T>`, writes rows into the compiled table and saves the assets.
 
-- `Authoring/CsvDataSourceSO<T>` authoring flow via `OnValidate()`
-- `Csv/RobustCsvParser`: robust CSV tokenizer (quotes, escaped quotes, multiline-safe handling)
-- `Authoring/CsvRowCompiler<T>`: transforms parsed rows into your domain type via `IRowDeserializer<T>`
-- `Authoring/CompiledCsvTableSO<T>`: serialized container for compiled rows
-- `WeightedDraw/WeightedDrawEngine<TEntry, TContext>`: filtering + weighted random selection
-- `Conditions/ConditionEvaluator`: optional expression evaluator for conditions like `A>10&&FlagX`
+CSV schema and compilation rules
+- Headers are read from the first row of each CSV file and are merged (case-insensitive) into `CsvDataSourceSO<T>.Columns`.
+- `CsvColumnDefinition.IsRequired` marks a column as required; `CsvRowCompiler<T>` will throw an `InvalidOperationException`
+  during compile if a required column is missing from any CSV source.
+- Each data row is transformed into a `Dictionary<string,string>` by `CsvRowCompiler<T>` (keys are header names, lookup is
+  case-insensitive when deserializing). Your `IRowDeserializer<T>.DeserializeRow(...)` maps those strings into typed values.
+- If `DeserializeRow` returns `null` for a row, that row is skipped. Throw exceptions from your deserializer to fail fast.
+- Multiple `TextAsset` sources are processed in order and concatenated when compiling.
 
-### Editor (`Editor/`)
+Compiled asset behavior
+- `CompiledCsvTableSO<T>` stores compiled rows in a private serialized `List<T>` and exposes them via `IReadOnlyList<T> Rows`.
+- When `CsvImportService` creates a new `CompiledCsvTableSO<T>` and the authoring asset is already a saved asset in the
+  project, the compiled table is attached as a sub-asset (`AssetDatabase.AddObjectToAsset`) and assigned to the
+  `CsvDataSourceSO<T>.CompiledTable` property.
 
-- `Editor/Import/CsvImportService` compiler bridge
-- auto-sync of discovered columns from attached CSV files
-- auto-compile of source CSV text into compiled table data
+Using `WeightedDrawEngine<TEntry,TContext>`
+Constructor:
+- `new WeightedDrawEngine<TEntry,TContext>(Func<TEntry,TContext,bool> isEligible, Func<TEntry,float> weightSelector, IRandomValueProvider rng = null)`
 
-## End-to-end pipeline: how the tool works
+Behavior highlights:
+- `GetValidEntries(...)` returns entries that pass `isEligible(entry, context)`.
+- `Draw(...)` selects among the valid entries. Negative weights are treated as `0`.
+- If total positive weight is <= 0, a uniform random index is chosen among valid entries.
+- If weights sum to > 0, a float target in [0, totalWeight) is drawn and a cumulative scan picks the first entry where
+  `target <= cumulative`.
+- If the loop completes without selecting (edge-case due to an out-of-range random float), the last valid entry is returned
+  as a safety fallback.
 
-1. You create a custom authoring asset by inheriting from `CsvDataSourceSO<T>`.
-2. You assign one or more CSV `TextAsset` files to `SourceCsvFiles`.
-3. `OnValidate()` runs in editor:
-   - computes a source signature
-   - re-discovers headers across sources and syncs `Columns`
-   - optionally compiles if `AutoCompileInEditor` is enabled
-4. `CsvImportService.CompileGeneric<T>` executes through the editor bridge:
-   - obtains your `IRowDeserializer<T>` by reflection
-   - ensures `CompiledTable` exists (or creates one)
-   - compiles all rows from all source CSV files through `CsvRowCompiler<T>`
-   - writes rows into `CompiledCsvTableSO<T>`
-5. At runtime, your gameplay system reads `CompiledTable.Rows` and calls `WeightedDrawEngine<TEntry, TContext>.Draw(...)`.
+Randomness and determinism
+- By default the engine uses `WeightedDraw.UnityRandomValueProvider.Shared` which calls `UnityEngine.Random.Range`.
+- For deterministic tests inject your own `IRandomValueProvider` implementation.
 
-## CSV import lifecycle details
+Using condition expressions (optional)
+- `Conditions.ConditionEvaluator` parses and evaluates simple boolean expressions such as `Finance>10 && HasKeycard`.
+- Expression connectors supported: `&&`, `||`, `&`, `|`, `;`, `and`, `or` (case-insensitive where applicable).
+- Comparison operators: `==`, `!=`, `>`, `<`, `>=`, `<=`.
+- Negation: prefix a flag with `!` (e.g. `!HasFlag`).
+- `ConditionEvaluator` depends on an `IGameStateReader` implementation; `DictionaryGameStateReader` converts common
+  primitives (float, double, int, long, bool and numeric/boolean strings) into float values and performs case-insensitive
+  key lookup.
 
-### Header and schema handling
+Extending the package — step-by-step examples
 
-- headers are discovered from row `0` of each CSV source
-- discovered headers are merged into `Columns` case-insensitively
-- `CsvColumnDefinition.IsRequired` controls strict required-column validation during compile
-- missing required columns throw an exception in `CsvRowCompiler<T>`
-
-### Row compilation behavior
-
-- each row becomes a `Dictionary<string, string>` keyed by header
-- your deserializer converts dictionary values to typed fields
-- if your deserializer returns `null`, that row is skipped
-- multiple source CSV files are concatenated in compile order
-
-### Compilation output
-
-- compiled rows are saved into `CompiledCsvTableSO<T>`
-- when the authoring asset exists in the AssetDatabase, compiled table can be stored as a sub-asset
-- `EditorUtility.SetDirty` and `AssetDatabase.SaveAssets` persist editor changes
-
-## Practical tutorial
-
-This tutorial creates a small weighted loot table from CSV, compiles it in editor, then draws an entry in runtime.
-
-### 1) Define your row model
+1) Define a row type
 
 ```csharp
 using System;
@@ -81,7 +96,7 @@ public sealed class LootRow
 }
 ```
 
-### 2) Implement row deserialization
+2) Implement `IRowDeserializer<T>` in your own project
 
 ```csharp
 using System.Collections.Generic;
@@ -89,46 +104,29 @@ using Authoring;
 
 public sealed class LootRowDeserializer : IRowDeserializer<LootRow>
 {
-	public LootRow DeserializeRow(IReadOnlyDictionary<string, string> rowData, int rowNumber)
+	public LootRow DeserializeRow(IReadOnlyDictionary<string,string> rowData, int rowNumber)
 	{
-		_ = rowNumber;
+		// rowNumber is 1-based and indicates the source CSV row index (useful for error messages)
+		if (rowData == null) return null;
 
-		return new LootRow
-		{
-			ItemId = Get(rowData, "ItemId"),
-			Weight = ParseInt(rowData, "Weight"),
-			IsUnlocked = ParseBool(rowData, "IsUnlocked")
-		};
-	}
+		string id = rowData.TryGetValue("ItemId", out var s) ? s : string.Empty;
+		int weight = int.TryParse(rowData.TryGetValue("Weight", out var w) ? w : null, out var parsed) ? parsed : 0;
+		bool unlocked = bool.TryParse(rowData.TryGetValue("IsUnlocked", out var u) ? u : null, out var b) && b;
 
-	private static string Get(IReadOnlyDictionary<string, string> rowData, string key)
-	{
-		return rowData != null && rowData.TryGetValue(key, out string value) ? value : string.Empty;
-	}
-
-	private static int ParseInt(IReadOnlyDictionary<string, string> rowData, string key)
-	{
-		return int.TryParse(Get(rowData, key), out int value) ? value : 0;
-	}
-
-	private static bool ParseBool(IReadOnlyDictionary<string, string> rowData, string key)
-	{
-		return bool.TryParse(Get(rowData, key), out bool value) && value;
+		return new LootRow { ItemId = id, Weight = weight, IsUnlocked = unlocked };
 	}
 }
 ```
 
-### 3) Create a concrete compiled table type (recommended)
+3) Create a concrete `CompiledCsvTableSO<T>` (recommended though optional)
 
 ```csharp
 using Authoring;
 
-public sealed class LootCompiledTableSO : CompiledCsvTableSO<LootRow>
-{
-}
+public sealed class LootCompiledTableSO : CompiledCsvTableSO<LootRow> { }
 ```
 
-### 4) Create your authoring asset type
+4) Create an authoring asset type
 
 ```csharp
 using Authoring;
@@ -137,302 +135,42 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "Weighted Draw System/Loot Table")]
 public sealed class LootTableAuthoringSO : CsvDataSourceSO<LootRow>
 {
-	protected override IRowDeserializer<LootRow> GetDeserializer()
-	{
-		return new LootRowDeserializer();
-	}
+	protected override IRowDeserializer<LootRow> GetDeserializer() => new LootRowDeserializer();
 }
 ```
 
-### 5) Create the CSV
+5) Author CSV files and assign them to `SourceCsvFiles` on the created authoring asset. Enable `AutoCompileInEditor`
+   if you want OnValidate to automatically run the compile bridge.
 
-Example `TextAsset` contents:
-
-```csv
-ItemId,Weight,IsUnlocked
-potion_small,60,true
-shield_basic,30,true
-legendary_core,10,false
-```
-
-### 6) Configure in Unity Editor
-
-1. Create `LootTableAuthoringSO` asset.
-2. Assign your CSV `TextAsset` to `SourceCsvFiles`.
-3. (Recommended) assign `CompiledTable` to an instance of `LootCompiledTableSO`.
-4. Ensure `AutoCompileInEditor` is enabled.
-5. Confirm columns are discovered under `Columns`.
-6. Save asset; compile runs via `OnValidate()`.
-
-### 7) Draw entries at runtime
+6) At runtime consume the compiled rows and the engine
 
 ```csharp
-using WeightedDraw;
-
-public static class LootSelector
-{
-	public static LootRow DrawUnlocked(LootTableAuthoringSO authoring)
-	{
-		var rows = authoring.CompiledTable != null ? authoring.CompiledTable.Rows : null;
-
-		var engine = new WeightedDrawEngine<LootRow, object>(
-			static (row, _) => row != null && row.IsUnlocked,
-			static row => row.Weight);
-
-		return engine.Draw(rows, null);
-	}
-}
+var compiled = lootAuthoring.CompiledTable?.Rows;
+var engine = new WeightedDraw.WeightedDrawEngine<LootRow, object>(
+	(row, _) => row != null && row.IsUnlocked,
+	row => row.Weight);
+LootRow pick = engine.Draw(compiled, null);
 ```
 
-## WeightedDrawEngine guide
-
-The engine is intentionally generic. You provide three things:
-
-- `isEligible`: `Func<TEntry, TContext, bool>` (which entries are allowed)
-- `weightSelector`: `Func<TEntry, float>` (how much chance each eligible entry gets)
-- `IRandomValueProvider` (optional, for deterministic tests or custom RNG)
-
-### How eligibility works
-
-`WeightedDrawEngine<TEntry, TContext>` validates entries by calling your `isEligible(entry, context)` predicate in `GetValidEntries(...)`.
-
-- if no eligible entries exist, `Draw(...)` returns `default`
-- only eligible entries participate in random selection
-- negative weights are clamped to `0`
-- if total effective weight is `<= 0`, the engine falls back to uniform random among eligible entries
-
-Probability rule (when total weight is positive):
-
-- `P(entry) = max(0, weight(entry)) / Sum(max(0, weight(all eligible entries)))`
-
-### Basic WeightedDrawEngine setup
-
-```csharp
-using WeightedDraw;
-
-var engine = new WeightedDrawEngine<LootRow, object>(
-	static (row, _) => row != null && row.IsUnlocked,
-	static row => row.Weight);
-
-LootRow selected = engine.Draw(authoring.CompiledTable.Rows, null);
-```
-
-### Context-driven filtering tutorial
-
-Use `TContext` to pass game-state needed for eligibility checks.
-
-```csharp
-public sealed class CardDrawContext
-{
-	public int CurrentYear;
-	public HashSet<int> BlockedCardIds;
-}
-
-var engine = new WeightedDrawEngine<CardRow, CardDrawContext>(
-	static (row, ctx) =>
-		row != null &&
-		row.IsDrawable &&
-		row.YearUnlock <= ctx.CurrentYear &&
-		(ctx.BlockedCardIds == null || !ctx.BlockedCardIds.Contains(row.CardId)),
-	static row => row.Weight);
-
-CardRow selected = engine.Draw(rows, context);
-```
-
-### Condition-expression integration tutorial
-
-If your CSV has `Pre_Conditions`, evaluate them in the eligibility predicate.
-
-```csharp
-using System;
-using Conditions;
-
-IConditionEvaluator evaluator = new ConditionEvaluator();
-IGameStateReader gameState = new DictionaryGameStateReader(new Dictionary<string, object>
-{
-	["Finance"] = 55,
-	["HasDiedOnce"] = true
-});
-
-var engine = new WeightedDrawEngine<CardRow, object>(
-	(row, _) => row != null && evaluator.Evaluate(row.PreConditions, gameState),
-	static row => row.Weight);
-```
-
-### Deterministic testing and custom randomness
-
-For tests or special RNG behavior, inject a custom `IRandomValueProvider`.
-
-```csharp
-public sealed class FixedRandom : IRandomValueProvider
-{
-	public float NextFloat(float minInclusive, float maxExclusive) => minInclusive;
-	public int NextInt(int minInclusive, int maxExclusive) => minInclusive;
-}
-
-var engine = new WeightedDrawEngine<LootRow, object>(
-	static (_, _) => true,
-	static row => row.Weight,
-	new FixedRandom());
-```
-
-See `Tests/EditMode/WeightedDrawEngineTests.cs` for practical boundary and fallback examples.
-
-## Using condition expressions (optional)
-
-If your CSV stores condition strings like `Finance>40&&HasKeycard`, evaluate them through `ConditionEvaluator`:
-
-- use `DictionaryGameStateReader` to expose game-state values
-- call `ConditionEvaluator.Evaluate(expression, gameStateReader)`
-- plug that boolean into `WeightedDrawEngine` eligibility
-
-Example supported operators and connectors:
-
-- comparison: `==`, `!=`, `>`, `<`, `>=`, `<=`
-- connectors: `&&`, `||`, `&`, `;`, `and`, `or`
-- flags: `HasDiedOnce` (truthy if value exists and is non-zero)
-- negation: `!HasDiedOnce`
-
-## Game state reader details
-
-`DictionaryGameStateReader` is the default adapter used with `ConditionEvaluator` when your game state is dictionary-based.
-
-Behavior in `TryGetValue(key, out value)`:
-
-- key lookup is case-insensitive
-- unsupported keys return `false`
-- values are converted to `float` when possible
-
-Supported value conversions:
-
-- `float`, `double`, `int`, `long`
-- `bool` (`true` -> `1`, `false` -> `0`)
-- numeric strings parsed with invariant culture (`"12.5"`)
-- boolean strings (`"true"`, `"false"`)
-
-Unsupported or null values return `false`.
-
-If your game state is not dictionary-based (ECS, service layer, save model), implement your own `IGameStateReader` and pass it to `ConditionEvaluator`.
-
-```csharp
-using Conditions;
-
-public sealed class PlayerStateReader : IGameStateReader
-{
-	private readonly PlayerState state;
-
-	public PlayerStateReader(PlayerState state)
-	{
-		this.state = state;
-	}
-
-	public bool TryGetValue(string key, out float value)
-	{
-		value = 0f;
-		if (state == null || string.IsNullOrWhiteSpace(key))
-		{
-			return false;
-		}
-
-		if (string.Equals(key, "Finance", StringComparison.OrdinalIgnoreCase))
-		{
-			value = state.Finance;
-			return true;
-		}
-
-		if (string.Equals(key, "HasDiedOnce", StringComparison.OrdinalIgnoreCase))
-		{
-			value = state.HasDiedOnce ? 1f : 0f;
-			return true;
-		}
-
-		return false;
-	}
-}
-```
-
-## WeightedDrawEngine edge behaviors
-
-`WeightedDrawEngine` has a few important edge semantics:
-
-- entry order matters when random target lands exactly on a boundary (`target <= cumulative`)
-- negative weights are treated as `0`
-- if all eligible weights are `<= 0`, selection becomes uniform over eligible entries
-- if random provider returns out-of-range float, engine returns the last valid entry as safety fallback
-
-These are covered in `Tests/EditMode/WeightedDrawEngineTests.cs`.
-
-## RobustCsvParser compatibility notes
-
-`RobustCsvParser` supports:
-
-- quoted fields with commas
-- escaped quotes (`""`)
-- multiline quoted fields
-- `LF` and `CRLF` line endings
-
-Compatibility mode:
-
-- legacy wrapped-record lines like `"Id,Name,Weight"` are normalized and reparsed
-- this helps migration from `_Old` CSV exports that wrapped entire records
-
-See `Tests/EditMode/RobustCsvParserTests.cs` for concrete coverage.
-
-## Editor import bridge behavior
-
-`CsvDataSourceSO<T>.OnValidate()` compiles through a reflection bridge to editor-only code.
-
-- runtime side calls `EditorImportBridge`
-- editor side resolves `Editor.Import.CsvImportService`
-- missing type/method now logs explicit warnings instead of silent no-op
-- invocation failures log an explicit error with type context
-
-This is intentional to keep runtime assembly independent from direct editor assembly references.
-
-## Current tool vs legacy `_Old` tool
-
-Everything under `_Old/` is deprecated and kept for migration only.
-
-### Architecture changes
-
-- **Old**: split into `ProbabilityEngine` + `SchemaImporter` with dynamic `DataRecord` dictionaries.
-- **Current**: unified typed pipeline (`CsvDataSourceSO<T>` -> `CsvRowCompiler<T>` -> `CompiledCsvTableSO<T>` -> `WeightedDrawEngine<TEntry, TContext>`).
-
-### Data model changes
-
-- **Old**: `DataSchemaSO` + `ColumnDefinition` + `DataRecord` object fields.
-- **Current**: your own strongly typed row class `T` and explicit deserializer logic.
-
-### Selection engine changes
-
-- **Old**: `ProbabilityEngine<TState, TValue>` + `ProbabilityItem<TState, TValue>`.
-- **Current**: `WeightedDrawEngine<TEntry, TContext>` with injected eligibility and weight selectors.
-
-### Condition handling changes
-
-- **Old**: condition parsing utilities in `_Old/Runtime/SchemaImporter/Parsers`.
-- **Current**: lightweight `ConditionEvaluator` + `IGameStateReader` in `Runtime/Conditions`.
-
-### Source format scope
-
-- **Old**: CSV and JSON importers (`DynamicDataImporter`).
-- **Current**: CSV-first core flow focused on robust typed import and compile.
-
-### Why this refactor
-
-- less reflection-heavy runtime usage
-- stronger compile-time safety through typed rows
-- cleaner separation of authoring/import/runtime concerns
-- easier testing with deterministic `IRandomValueProvider`
-
-## Where to look for examples
-
-- integration tests: `Tests/EditMode/WeightedDrawSystemIntegrationTests.cs`
-- legacy references: `_Old/Tests/EditMode`
-
-## Packaging notes
-
-- this file is the package `documentationUrl` target
-- package code is designed to be consumed as immutable UPM content
-- game-specific schemas, deserializers, and gameplay glue should live in your project code
+Testing and sample coverage
+- See `Tests/EditMode/WeightedDrawEngineTests.cs` for draw engine edge cases (zero/negative weights, uniform fallback,
+  and deterministic random provider examples).
+- See `Tests/EditMode/RobustCsvParserTests.cs` for CSV parsing behaviors including quoted cells and legacy wrapped-records.
+
+Implementation notes and gotchas
+- `CsvDataSourceSO<T>.OnValidate()` only resyncs `Columns` when the `SourceSignature` (based on `TextAsset` instance IDs)
+  changes — that avoids repeated work when the assets are unchanged.
+- Header discovery uses the first row only — ensure your CSV files include a header row.
+- `CsvRowCompiler<T>` validates required columns per-source and will throw on missing required columns.
+- The editor bridge uses reflection; if you move or rename the editor assembly/type you need to update the
+  hard-coded type name in `Authoring.EditorImportBridge`.
+
+Contributing and further work
+- The package is intentionally small; add new features by keeping runtime APIs free of UnityEditor references and
+  putting editor-only helpers under the `Editor/` folder.
+- If you need JSON importers or richer schema features, implement them as separate compile-time steps that produce
+  `CompiledCsvTableSO<T>` instances so runtime code remains clean.
+
+License
+- See the repository `LICENSE` file.
 
